@@ -152,6 +152,88 @@
     .empty-state i{width:40px;height:40px;margin-bottom:12px;opacity:0.3}
 
     .loading{text-align:center;padding:40px;color:var(--muted);font-size:13px}
+
+    /* ── NPS DASHBOARD (dashboard-nps reference) ── */
+    .nps-header{display:flex;align-items:center;justify-content:flex-end;padding:0 0 12px;gap:10px}
+    .nps-period{display:flex;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+    .nps-period-btn{background:none;border:none;color:var(--muted);padding:6px 14px;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;cursor:pointer;font-family:'Inter',sans-serif;transition:all .2s}
+    .nps-period-btn:hover{color:var(--text)}
+    .nps-period-btn.active{background:var(--red);color:#fff}
+    .nps-filter-bar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding:12px 16px;background:var(--card);border:1px solid var(--border);border-radius:10px;margin-bottom:16px}
+    .nps-filter-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.3;margin-right:4px}
+    .nps-flt{background:rgba(255,255,255,0.05);border:1px solid var(--border);color:var(--text);border-radius:8px;padding:5px 10px;font-size:11px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;outline:none}
+    .nps-flt:focus{border-color:var(--red)}
+    .nps-flt option{background:#0f1525}
+    .nps-hero{display:grid;grid-template-columns:260px 1fr 1fr 1fr;gap:16px;margin-bottom:16px;align-items:stretch}
+    .nps-score-hero{background:linear-gradient(135deg,#0d1f3c 0%,#011228 100%);border:1px solid rgba(237,28,36,0.3);border-radius:24px;padding:28px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+    .nps-score-hero::before{content:'';position:absolute;width:160px;height:160px;border-radius:50%;background:radial-gradient(circle,rgba(237,28,36,.15) 0%,transparent 70%);top:-40px;right:-40px}
+    .nps-score-hero-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.4;margin-bottom:8px}
+    .nps-score-hero-val{font-size:72px;font-weight:700;line-height:1;color:#fff}
+    .nps-score-hero-zone{display:inline-flex;align-items:center;gap:6px;border-radius:20px;border:1px solid;padding:4px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;width:fit-content;margin-top:6px}
+    .nps-score-hero-delta{font-size:11px;opacity:.5;margin-top:16px}
+    .nps-score-hero-delta strong{opacity:1}
+    .nps-kpi-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden}
+    .nps-kpi-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px}
+    .nps-kpi-card.green::after{background:var(--green)}
+    .nps-kpi-card.yellow::after{background:var(--yellow)}
+    .nps-kpi-card.red::after{background:#EF4136}
+    .nps-kpi-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:12px}
+    .nps-kpi-val{font-size:40px;font-weight:700;line-height:1}
+    .nps-kpi-val.green{color:var(--green)}
+    .nps-kpi-val.yellow{color:var(--yellow)}
+    .nps-kpi-val.red{color:#EF4136}
+    .nps-kpi-sub{font-size:10px;opacity:.35;margin-top:4px}
+    .nps-badge-up,.nps-badge-flat,.nps-badge-down{display:inline-flex;align-items:center;gap:3px;font-size:10px;font-weight:700;border-radius:6px;padding:3px 8px;margin-top:14px;width:fit-content}
+    .nps-badge-up{background:rgba(0,166,80,.15);color:var(--green)}
+    .nps-badge-down{background:rgba(239,65,54,.15);color:#EF4136}
+    .nps-badge-flat{background:rgba(253,185,19,.15);color:var(--yellow)}
+    .nps-section-grid{display:grid;gap:16px;margin-bottom:16px}
+    .nps-g2{grid-template-columns:1fr 1fr}
+    .nps-g3{grid-template-columns:1fr 1fr 1fr}
+    .nps-card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:24px}
+    .nps-card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:18px}
+    .nps-dist-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px;margin-bottom:16px}
+    .nps-dist-seg{transition:width .8s ease}
+    .nps-dist-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+    .nps-dist-item-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.4;margin-bottom:4px}
+    .nps-dist-item-val{font-size:28px;font-weight:700}
+    .nps-dist-item-pct{font-size:11px;opacity:.4;margin-top:2px}
+    .nps-gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%}
+    .nps-gauge-svg{width:100%;max-width:280px}
+    .nps-trend-svg{width:100%;overflow:visible}
+    .nps-dim-item{margin-bottom:14px}
+    .nps-dim-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+    .nps-dim-name{font-size:12px;font-weight:500;opacity:.8}
+    .nps-dim-score{font-size:14px;font-weight:700}
+    .nps-dim-bar-bg{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden}
+    .nps-dim-bar-fill{height:100%;border-radius:3px;transition:width .8s ease}
+    .nps-dim-meta{font-size:9px;opacity:.3;font-weight:600;margin-top:3px}
+    .nps-strategic-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px}
+    .nps-strat-card{background:rgba(1,8,22,.6);border:1px solid var(--border);border-radius:20px;padding:16px;position:relative;overflow:hidden}
+    .nps-strat-top-bar{position:absolute;top:0;left:0;right:0;height:3px}
+    .nps-strat-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.4;margin-bottom:10px}
+    .nps-strat-score{font-size:36px;font-weight:700}
+    .nps-strat-zone{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-radius:10px;padding:2px 8px;margin-top:6px;display:inline-block}
+    .nps-strat-bottom{border-top:1px solid rgba(255,255,255,.05);padding-top:10px;margin-top:14px;display:flex;justify-content:space-between;font-size:9px;opacity:.4;font-weight:700}
+    .nps-month-bar-item{display:grid;grid-template-columns:60px 1fr 44px;align-items:center;gap:10px;margin-bottom:10px}
+    .nps-month-label{font-size:10px;font-weight:700;opacity:.4;text-align:right}
+    .nps-month-bar-bg{height:20px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;position:relative}
+    .nps-month-bar-fill{height:100%;border-radius:6px;transition:width 1s ease;display:flex;align-items:center;padding-left:8px}
+    .nps-month-bar-fill span{font-size:9px;font-weight:700;color:rgba(255,255,255,.6)}
+    .nps-month-nps{font-size:13px;font-weight:700;text-align:right}
+    .nps-feedback-item{border:1px solid var(--border);border-radius:16px;padding:14px 16px;margin-bottom:10px;position:relative;background:rgba(255,255,255,.02);transition:border-color .2s}
+    .nps-feedback-item:hover{border-color:rgba(255,255,255,.2)}
+    .nps-feedback-score{position:absolute;top:12px;right:14px;width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:12px}
+    .nps-feedback-text{font-size:12px;line-height:1.55;opacity:.75;padding-right:40px;margin-bottom:8px}
+    .nps-feedback-meta{font-size:10px;opacity:.35;display:flex;gap:10px}
+    .nps-feedback-tag{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-radius:4px;padding:2px 7px}
+    .nps-zona-excelencia{background:rgba(0,166,80,.15);color:#00A650;border-color:rgba(0,166,80,.3)}
+    .nps-zona-qualidade{background:rgba(86,193,116,.15);color:#56C174;border-color:rgba(86,193,116,.3)}
+    .nps-zona-aperfeicoamento{background:rgba(253,185,19,.15);color:#FDB913;border-color:rgba(253,185,19,.3)}
+    .nps-zona-critica{background:rgba(239,65,54,.15);color:#EF4136;border-color:rgba(239,65,54,.3)}
+    @media(max-width:900px){.nps-hero{grid-template-columns:1fr 1fr}.nps-g2,.nps-g3{grid-template-columns:1fr}.nps-strategic-grid{grid-template-columns:repeat(3,1fr)}}
+    .nps-au{animation:npsFadeUp .4s ease both}
+    @keyframes npsFadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
   </style>
 </head>
 <body>
@@ -224,36 +306,58 @@
 
       <!-- PESQUISA NPS -->
       <div class="view" id="viewNps">
-        <div class="nps-filters" id="npsFilters">
-          <select id="filtroMes"><option value="">Todos os meses</option></select>
-          <select id="filtroUnidade"><option value="">Todas unidades</option></select>
-          <select id="filtroRegiao"><option value="">Todas regiões</option></select>
+        <div class="nps-header">
+          <div class="nps-period">
+            <button class="nps-period-btn" onclick="setPeriod('3m',this)">3M</button>
+            <button class="nps-period-btn active" onclick="setPeriod('ano26',this)">2026</button>
+            <button class="nps-period-btn" onclick="setPeriod('all',this)">Todos</button>
+          </div>
+        </div>
+        <div class="nps-filter-bar">
+          <span class="nps-filter-label">Filtros:</span>
+          <select class="nps-flt" id="f-mes" onchange="applyFilters()"><option value="Todos">Todos os Meses</option></select>
+          <select class="nps-flt" id="f-estrategico" onchange="applyFilters()"><option value="Todos">Todos</option><option>ArcelorMittal</option><option>Vale</option><option>Petroreconcavo</option><option>Wind</option><option>Outros</option></select>
+          <select class="nps-flt" id="f-unidade" onchange="applyFilters()"><option value="Todas">Todas as Unidades</option></select>
+          <select class="nps-flt" id="f-cliente" onchange="applyFilters()"><option value="Todos">Todos os Clientes</option></select>
         </div>
         <div class="nps-hero">
-          <div class="nps-score">
-            <div class="nps-score-label">Índice NPS</div>
-            <div class="nps-score-val" id="npsScore">—</div>
-            <div class="nps-score-zone" id="npsZone"></div>
+          <div class="nps-score-hero">
+            <div><div class="nps-score-hero-label">Índice NPS</div><div class="nps-score-hero-val" id="heroScore">—</div><div class="nps-score-hero-zone" id="heroZone"></div></div>
+            <div class="nps-score-hero-delta" id="heroDelta"></div>
           </div>
-          <div class="nps-kpis">
-            <div class="nps-kpi"><div class="nps-kpi-label">Promotores</div><div class="nps-kpi-val green" id="npsKpiP">—</div><div class="nps-kpi-sub">notas 9-10</div></div>
-            <div class="nps-kpi"><div class="nps-kpi-label">Neutros</div><div class="nps-kpi-val yellow" id="npsKpiN">—</div><div class="nps-kpi-sub">notas 7-8</div></div>
-            <div class="nps-kpi"><div class="nps-kpi-label">Detratores</div><div class="nps-kpi-val red" id="npsKpiD">—</div><div class="nps-kpi-sub">notas 0-6</div></div>
-          </div>
+          <div class="nps-kpi-card green"><div><div class="nps-kpi-label">Promotores</div><div class="nps-kpi-val green" id="kpiP">—</div><div class="nps-kpi-sub">notas 9 – 10</div></div><div class="nps-badge-up" id="kpiPBadge"></div></div>
+          <div class="nps-kpi-card yellow"><div><div class="nps-kpi-label">Neutros</div><div class="nps-kpi-val yellow" id="kpiN">—</div><div class="nps-kpi-sub">notas 7 – 8</div></div><div class="nps-badge-flat" id="kpiNBadge"></div></div>
+          <div class="nps-kpi-card red"><div><div class="nps-kpi-label">Detratores</div><div class="nps-kpi-val red" id="kpiD">—</div><div class="nps-kpi-sub">notas 0 – 6</div></div><div class="nps-badge-down" id="kpiDBadge"></div></div>
         </div>
-        <div class="card">
-          <div class="card-title">Distribuição</div>
-          <div class="nps-dist-bar"><div class="nps-dist-seg" id="npsDistP" style="background:var(--green)"></div><div class="nps-dist-seg" id="npsDistN" style="background:var(--yellow)"></div><div class="nps-dist-seg" id="npsDistD" style="background:var(--red)"></div></div>
-          <div class="nps-legend">
-            <span><i style="background:var(--green)"></i><span id="npsPctP">0%</span> Promotores</span>
-            <span><i style="background:var(--yellow)"></i><span id="npsPctN">0%</span> Neutros</span>
-            <span><i style="background:var(--red)"></i><span id="npsPctD">0%</span> Detratores</span>
+        <div class="nps-section-grid nps-g3">
+          <div class="nps-card">
+            <div class="nps-card-title">Distribuição de Respostas</div>
+            <div class="nps-dist-bar" id="distBar"><div class="nps-dist-seg" id="dSegP" style="background:#00A650;border-radius:6px 0 0 6px"></div><div class="nps-dist-seg" id="dSegN" style="background:#FDB913"></div><div class="nps-dist-seg" id="dSegD" style="background:#EF4136;border-radius:0 6px 6px 0"></div></div>
+            <div class="nps-dist-legend">
+              <div><div class="nps-dist-item-label">Promotores</div><div class="nps-dist-item-val" id="dValP" style="color:#00A650">—</div><div class="nps-dist-item-pct" id="dPctP">—%</div></div>
+              <div><div class="nps-dist-item-label">Neutros</div><div class="nps-dist-item-val" id="dValN" style="color:#FDB913">—</div><div class="nps-dist-item-pct" id="dPctN">—%</div></div>
+              <div><div class="nps-dist-item-label">Detratores</div><div class="nps-dist-item-val" id="dValD" style="color:#EF4136">—</div><div class="nps-dist-item-pct" id="dPctD">—%</div></div>
+            </div>
+            <div style="margin-top:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.3;margin-bottom:10px">Total de Respostas</div>
+            <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,.6)" id="dTotal">—</div>
           </div>
+          <div class="nps-card nps-gauge-wrap">
+            <div class="nps-card-title" style="width:100%;text-align:center">Posicionamento NPS</div>
+            <svg class="nps-gauge-svg" viewBox="0 0 280 160"><path d="M30,140 A110,110 0 0,1 85,50" fill="none" stroke="rgba(239,65,54,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M85,50 A110,110 0 0,1 140,30" fill="none" stroke="rgba(253,185,19,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M140,30 A110,110 0 0,1 195,50" fill="none" stroke="rgba(86,193,116,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M195,50 A110,110 0 0,1 250,140" fill="none" stroke="rgba(0,166,80,.2)" stroke-width="20" stroke-linecap="butt"/><text x="18" y="88" fill="#EF4136" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Crítico</text><text x="82" y="38" fill="#FDB913" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Atenção</text><text x="200" y="38" fill="#56C174" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Qualidade</text><text x="264" y="88" fill="#00A650" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Excl.</text><g id="gaugeNeedle" style="transform-origin:140px 140px;transform:rotate(-90deg);transition:transform 1.2s cubic-bezier(.4,0,.2,1)"><line x1="140" y1="140" x2="140" y2="42" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round"/><circle cx="140" cy="140" r="7" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><circle cx="140" cy="140" r="3" fill="#fff"/></g><text x="140" y="124" fill="#fff" font-size="28" font-family="Ubuntu" font-weight="700" text-anchor="middle" id="gaugeScore">—</text><text x="140" y="142" fill="rgba(255,255,255,.3)" font-size="9" font-family="Ubuntu" text-anchor="middle">NPS Score</text></svg>
+          </div>
+          <div class="nps-card"><div class="nps-card-title">NPS por Unidade</div><div id="dimUnidade"></div></div>
         </div>
-        <div class="card">
-          <div class="card-title">Respostas</div>
-          <div class="loading" id="npsLoading">Carregando dados...</div>
-          <div id="npsTableWrap" style="display:none"><table class="nps-table"><thead><tr><th>Data</th><th>Unidade</th><th>Nota</th><th>Classificação</th><th>Feedback</th></tr></thead><tbody id="npsTbody"></tbody></table></div>
+        <div class="nps-section-grid nps-g2">
+          <div class="nps-card">
+            <div class="nps-card-title">Evolução Mensal do NPS</div>
+            <svg class="nps-trend-svg" viewBox="0 0 560 180" id="trendSvg"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ED1C24" stop-opacity=".25"/><stop offset="100%" stop-color="#ED1C24" stop-opacity="0"/></linearGradient></defs></svg>
+          </div>
+          <div class="nps-card"><div class="nps-card-title">NPS por Cliente</div><div id="dimCliente" style="max-height:220px;overflow-y:auto"></div></div>
+        </div>
+        <div class="nps-card" style="margin-bottom:16px"><div class="nps-card-title">NPS Estratégico — Grandes Contas & Wind</div><div class="nps-strategic-grid" id="strategicBoard"></div></div>
+        <div class="nps-section-grid nps-g2">
+          <div class="nps-card"><div class="nps-card-title">Histórico por Mês</div><div id="monthlyHist"></div></div>
+          <div class="nps-card"><div class="nps-card-title">Comentários Recentes</div><div id="feedbacksList"></div></div>
         </div>
       </div>
 
@@ -307,130 +411,9 @@ const auth = getAuth(app);
 
 /* ── GLOBAIS ── */
 let currentUser = null;
-let npsData = [];
+/* ── LOAD NPS DATA ── */
 const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLod-I2nPflC9uP028rNrDuohmR1gy74E_XCb-A12MDWpE6NNOcwHjf4OQuQpmenY0yP9wAd3-GMQD/pub?output=csv";
 
-/* ── TOAST ── */
-window.showToast = function(msg, type) {
-  const t = document.getElementById('toast');
-  t.textContent = msg;
-  t.style.borderColor = type === 'error' ? 'var(--red)' : 'var(--border)';
-  t.classList.add('show');
-  setTimeout(() => t.classList.remove('show'), 3000);
-};
-
-/* ── MODAL ── */
-window.openModal = function(html) {
-  document.getElementById('modalContent').innerHTML = html;
-  document.getElementById('modalOverlay').classList.add('open');
-};
-window.closeModal = function() {
-  document.getElementById('modalOverlay').classList.remove('open');
-};
-document.getElementById('modalOverlay').onclick = function(e) {
-  if (e.target === this) closeModal();
-};
-
-/* ── VIEWS ── */
-window.showView = function(name) {
-  document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
-  document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
-  document.getElementById('view' + name.charAt(0).toUpperCase() + name.slice(1)).classList.add('active');
-  const navItem = document.querySelector(`.nav-item[data-view="${name}"]`);
-  if (navItem) navItem.classList.add('active');
-  const titles = {dashboard:'Dashboard',nps:'Pesquisa NPS',atividades:'Atividades',usuarios:'Usuários'};
-  document.getElementById('pageTitle').textContent = titles[name] || name;
-  if (name === 'nps') renderNps();
-  if (name === 'atividades') loadKanban();
-  if (name === 'dashboard') renderDashboard();
-};
-
-/* ── LOGIN ── */
-async function checkUserAccess(email) {
-  const q = query(collection(db, 'usuarios'), where('email', '==', email));
-  const snap = await getDocs(q);
-  if (snap.empty) throw new Error('Usuário não autorizado');
-  const userData = snap.docs[0].data();
-  return { id: snap.docs[0].id, ...userData };
-}
-
-window.openRegister = function() {
-  openModal(`
-    <h2>Criar Conta</h2>
-    <p style="font-size:12px;color:var(--muted);margin-bottom:8px">O primeiro usuário criado será administrador.</p>
-    <label>Nome</label>
-    <input id="regNome" placeholder="Nome completo">
-    <label>Email</label>
-    <input id="regEmail" type="email" placeholder="seu@email.com">
-    <label>Senha</label>
-    <input id="regSenha" type="password" placeholder="mínimo 6 caracteres">
-    <div class="modal-actions">
-      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancelar</button>
-      <button class="btn btn-red btn-sm" onclick="handleRegister()">Criar</button>
-    </div>
-  `);
-};
-
-window.handleRegister = async function() {
-  const nome = document.getElementById('regNome').value.trim();
-  const email = document.getElementById('regEmail').value.trim();
-  const senha = document.getElementById('regSenha').value;
-  if (!nome || !email || !senha) { showToast('Preencha todos os campos', 'error'); return; }
-  try {
-    const snap = await getDocs(collection(db, 'usuarios'));
-    const isFirst = snap.empty;
-    const cred = await createUserWithEmailAndPassword(auth, email, senha);
-    await setDoc(doc(db, 'usuarios', cred.user.uid), {
-      nome, email, tipo: isFirst ? 'admin' : 'user', criadoEm: new Date().toISOString()
-    });
-    closeModal();
-    showToast('Conta criada com sucesso!');
-    if (!isFirst) {
-      await signOut(auth);
-      document.getElementById('loginEmail').value = email;
-      document.getElementById('loginPass').value = '';
-    }
-  } catch(e) { showToast('Erro: ' + e.message, 'error'); }
-};
-
-window.handleLogin = async function() {
-  const email = document.getElementById('loginEmail').value.trim();
-  const pass = document.getElementById('loginPass').value;
-  const err = document.getElementById('loginError');
-  if (!email || !pass) { err.textContent = 'Preencha email e senha'; err.style.display = 'block'; return; }
-  try {
-    const cred = await signInWithEmailAndPassword(auth, email, pass);
-    const userInfo = await checkUserAccess(email);
-    currentUser = { uid: cred.user.uid, email, ...userInfo };
-    enterApp();
-  } catch(e) {
-    err.textContent = e.message === 'Usuário não autorizado' ? 'Usuário não autorizado' : 'Email ou senha incorretos';
-    err.style.display = 'block';
-  }
-};
-
-window.handleLogout = function() {
-  signOut(auth);
-  currentUser = null;
-  document.getElementById('app').style.display = 'none';
-  document.getElementById('loginScreen').style.display = 'flex';
-};
-
-function enterApp() {
-  document.getElementById('loginScreen').style.display = 'none';
-  document.getElementById('app').style.display = 'flex';
-  document.getElementById('userName').textContent = currentUser.nome || currentUser.email;
-  document.getElementById('userEmail').textContent = currentUser.email;
-  showView('dashboard');
-  lucide.createIcons();
-}
-
-/* ── FIREBASE AUTH STATE ── */
-/* ── SEM LOGIN (temporário) ── */
-currentUser = { uid: 'local', email: 'local@admin', nome: 'Admin', tipo: 'admin' };
-enterApp();
-
-/* ── LOAD NPS DATA ── */
 async function loadNpsData() {
   try {
     const proxy = "https://api.allorigins.win/raw?url=";
@@ -443,7 +426,7 @@ async function loadNpsData() {
       csv = await resp.text();
     }
     const rows = csv.split(/\r?\n/).filter(r => r.trim());
-    npsData = rows.slice(1).map(function(row) {
+    RAW_DATA = rows.slice(1).map(function(row) {
       var cols = [], curr = "", inQ = false;
       for (var i = 0; i < row.length; i++) {
         var ch = row[i];
@@ -453,112 +436,263 @@ async function loadNpsData() {
       }
       cols.push(curr.replace(/^"|"$/g,"").trim());
       return {
-        data: cols[0] || "",
-        numContrato: cols[1] || "",
-        unidade: cols[2] || "",
-        email: cols[3] || "",
-        contrato: cols[4] || "",
-        responsavel: cols[5] || "",
         mes: cols[6] || "",
         nota: parseInt(cols[7]) || parseInt(cols[8]) || 0,
+        unidade: cols[2] || "",
+        cliente: cols[4] || "",
+        contrato: cols[4] || "",
+        numContrato: cols[1] || "",
+        classificacao: cols[11] || "",
         feedback: cols[10] || cols[12] || "",
-        classificacao: cols[11] || ""
+        empresa: "Makro"
       };
     }).filter(d => d.nota > 0);
-    document.getElementById('npsLoading').style.display = 'none';
-    document.getElementById('npsTableWrap').style.display = '';
   } catch(e) {
-    document.getElementById('npsLoading').textContent = 'Erro ao carregar dados: ' + e.message;
+    console.error("Erro ao carregar planilha:", e);
   }
+  initNpsDashboard();
 }
 
-function getClassif(nota) {
-  if (nota >= 9) return 'Promotor';
-  if (nota >= 7) return 'Neutro';
-  return 'Detrator';
+/* ── NPS DASHBOARD FUNCTIONS ── */
+const MONTH_ORDER = {Jan:1,Fev:2,Mar:3,Abr:4,Mai:5,Jun:6,Jul:7,Ago:8,Set:9,Out:10,Nov:11,Dez:12};
+
+function sortMonths(arr){
+  return [...arr].sort((a,b)=>{
+    const[mA,yA]=a.split(' '), [mB,yB]=b.split(' ');
+    const fy=s=>parseInt(s)>50?1900+parseInt(s):2000+parseInt(s);
+    return fy(yA)!==fy(yB)?fy(yA)-fy(yB):(MONTH_ORDER[mA]||0)-(MONTH_ORDER[mB]||0);
+  });
+}
+function calcNPS(rows){
+  const total=rows.length;
+  if(!total) return {total:0,p:0,det:0,n:0,nps:0};
+  const p=rows.filter(x=>x.nota>=9).length;
+  const det=rows.filter(x=>x.nota<=6).length;
+  return {total,p,det,n:total-p-det,nps:Math.round(((p-det)/total)*100)};
+}
+function npsColor(v){
+  if(v>=75) return '#00A650';
+  if(v>=50) return '#56C174';
+  if(v>=0)  return '#FDB913';
+  return '#EF4136';
+}
+function npsZone(v){
+  if(v>=75) return {label:'Excelência',cls:'nps-zona-excelencia'};
+  if(v>=50) return {label:'Qualidade', cls:'nps-zona-qualidade'};
+  if(v>=0)  return {label:'Aperfeiçoamento',cls:'nps-zona-aperfeicoamento'};
+  return {label:'Crítico',cls:'nps-zona-critica'};
+}
+function getCategory(d){
+  var s=(d.classificacao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  if(s==='WIND') return 'Wind';
+  if(['PETRORECONCAVO','PETRO','POTIGUAR'].includes(s)) return 'Petroreconcavo';
+  if(s==='VALE') return 'Vale';
+  if(s==='ARCELORMITTAL') return 'ArcelorMittal';
+  return 'Outros';
 }
 
-function getClassifBadge(cl) {
-  if (cl === 'Promotor') return 'prom';
-  if (cl === 'Neutro') return 'neut';
-  return 'detr';
+let activePeriod = 'ano26';
+let filters = {mes:'Todos', estrategico:'Todos', unidade:'Todas', cliente:'Todos'};
+let RAW_DATA = [];
+
+function populateFilters(){
+  if (!RAW_DATA.length) return;
+  var allMonths = sortMonths([...new Set(RAW_DATA.map(d=>d.mes).filter(Boolean))]);
+  var fMes = document.getElementById('f-mes');
+  fMes.innerHTML = '<option value="Todos">Todos os Meses</option>';
+  allMonths.forEach(function(m){ var o=document.createElement('option'); o.value=m; o.textContent=m; fMes.appendChild(o); });
+  var allUnidades = [...new Set(RAW_DATA.map(d=>d.unidade).filter(Boolean))].sort();
+  var fUn = document.getElementById('f-unidade');
+  fUn.innerHTML = '<option value="Todas">Todas as Unidades</option>';
+  allUnidades.forEach(function(u){ var o=document.createElement('option'); o.value=u; o.textContent=u; fUn.appendChild(o); });
+  var allClientes = [...new Set(RAW_DATA.map(d=>d.cliente).filter(Boolean))].sort();
+  var fCl = document.getElementById('f-cliente');
+  fCl.innerHTML = '<option value="Todos">Todos os Clientes</option>';
+  allClientes.forEach(function(c){ var o=document.createElement('option'); o.value=c; o.textContent=c; fCl.appendChild(o); });
 }
 
-function calcNps(data) {
-  if (!data.length) return { score:0, total:0, p:0, n:0, d:0 };
-  const total = data.length;
-  const p = data.filter(d => d.nota >= 9).length;
-  const n = data.filter(d => d.nota >= 7 && d.nota <= 8).length;
-  const d = data.filter(d => d.nota <= 6).length;
-  const score = total ? Math.round(((p - d) / total) * 100) : 0;
-  return { score, total, p, n, d, pctP:Math.round(p/total*100), pctN:Math.round(n/total*100), pctD:Math.round(d/total*100) };
+function getFilteredData(){
+  return RAW_DATA.filter(function(d){
+    if(activePeriod==='3m'){
+      var allM=sortMonths([...new Set(RAW_DATA.map(function(x){return x.mes}).filter(Boolean))]);
+      var last3=allM.slice(-3);
+      if(!last3.includes(d.mes)) return false;
+    } else if(activePeriod==='ano26'){
+      if(!d.mes.endsWith('26')) return false;
+    }
+    if(filters.mes!=='Todos' && d.mes!==filters.mes) return false;
+    if(filters.estrategico!=='Todos' && getCategory(d)!==filters.estrategico) return false;
+    if(filters.unidade!=='Todas' && d.unidade!==filters.unidade) return false;
+    if(filters.cliente!=='Todos' && d.cliente!==filters.cliente) return false;
+    return true;
+  });
 }
 
-/* ── RENDER NPS ── */
-function renderNps() {
-  if (!npsData.length) { document.getElementById('npsLoading').style.display = ''; loadNpsData().then(renderNps); return; }
-  const mes = document.getElementById('filtroMes').value;
-  const unidade = document.getElementById('filtroUnidade').value;
-  const regiao = document.getElementById('filtroRegiao').value;
-  let filtered = npsData;
-  if (mes) filtered = filtered.filter(d => d.mes === mes);
-  if (unidade) filtered = filtered.filter(d => d.unidade === unidade);
-  if (regiao) filtered = filtered.filter(d => d.classificacao === regiao || d.unidade === regiao);
+function renderHero(data){
+  var s=calcNPS(data);
+  var z=npsZone(s.nps);
+  var col=npsColor(s.nps);
+  document.getElementById('heroScore').textContent = data.length?s.nps:'—';
+  document.getElementById('gaugeScore').textContent = data.length?s.nps:'—';
+  var zoneEl=document.getElementById('heroZone');
+  zoneEl.textContent=z.label;
+  zoneEl.className='nps-score-hero-zone '+z.cls;
+  zoneEl.style.color=col;
+  zoneEl.style.borderColor=col+'55';
+  var angle = data.length ? (s.nps/100)*90 : -90;
+  document.getElementById('gaugeNeedle').style.transform='rotate('+angle+'deg)';
+  document.getElementById('heroScore').style.color=col;
+  document.getElementById('kpiP').textContent = data.length?s.p:'—';
+  document.getElementById('kpiN').textContent = data.length?s.n:'—';
+  document.getElementById('kpiD').textContent = data.length?s.det:'—';
+  var pp=data.length?((s.p/s.total)*100).toFixed(1):0;
+  var np=data.length?((s.n/s.total)*100).toFixed(1):0;
+  var dp=data.length?((s.det/s.total)*100).toFixed(1):0;
+  document.getElementById('kpiPBadge').textContent = data.length?pp+'% do total':'';
+  document.getElementById('kpiNBadge').textContent = data.length?np+'% do total':'';
+  document.getElementById('kpiDBadge').textContent = data.length?dp+'% do total':'';
+  document.getElementById('dSegP').style.width=pp+'%';
+  document.getElementById('dSegN').style.width=np+'%';
+  document.getElementById('dSegD').style.width=dp+'%';
+  document.getElementById('dValP').textContent=data.length?s.p:'—';
+  document.getElementById('dValN').textContent=data.length?s.n:'—';
+  document.getElementById('dValD').textContent=data.length?s.det:'—';
+  document.getElementById('dPctP').textContent=data.length?pp+'%':'—';
+  document.getElementById('dPctN').textContent=data.length?np+'%':'—';
+  document.getElementById('dPctD').textContent=data.length?dp+'%':'—';
+  document.getElementById('dTotal').textContent=data.length?s.total:'—';
+  document.getElementById('heroDelta').innerHTML = data.length?'<strong>'+s.total+'</strong> avaliações no período':'Sem dados';
+}
 
-  const stats = calcNps(filtered);
-  document.getElementById('npsScore').textContent = stats.score;
-  document.getElementById('npsZone').textContent = stats.score >= 75 ? 'Excelência' : stats.score >= 50 ? 'Qualidade' : stats.score >= 0 ? 'Atenção' : 'Crítico';
-  document.getElementById('npsKpiP').textContent = stats.p;
-  document.getElementById('npsKpiN').textContent = stats.n;
-  document.getElementById('npsKpiD').textContent = stats.d;
-  document.getElementById('npsDistP').style.width = stats.pctP + '%';
-  document.getElementById('npsDistN').style.width = stats.pctN + '%';
-  document.getElementById('npsDistD').style.width = stats.pctD + '%';
-  document.getElementById('npsPctP').textContent = stats.pctP + '%';
-  document.getElementById('npsPctN').textContent = stats.pctN + '%';
-  document.getElementById('npsPctD').textContent = stats.pctD + '%';
-
-  const tbody = document.getElementById('npsTbody');
-  tbody.innerHTML = filtered.slice(0, 100).map(d => {
-    const cl = getClassif(d.nota);
-    return `<tr><td>${d.data}</td><td>${d.unidade}</td><td><span class="nps-badge ${getClassifBadge(cl)}">${d.nota}</span></td><td>${cl}</td><td style="max-width:300px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.feedback || '—'}</td></tr>`;
+function renderDimension(data, dim, containerId){
+  var keys=[...new Set(data.map(function(d){return d[dim]}).filter(Boolean))];
+  var items=keys.map(function(k){return {name:k,...calcNPS(data.filter(function(d){return d[dim]===k}))}}).filter(function(x){return x.total>0}).sort(function(a,b){return b.nps-a.nps});
+  var wrap=document.getElementById(containerId);
+  if(!items.length){wrap.innerHTML='<p style="font-size:11px;opacity:.3;padding:10px 0;">Sem dados no período.</p>';return;}
+  wrap.innerHTML=items.map(function(it){
+    var col=npsColor(it.nps);
+    var barW=Math.max(4,((it.nps+100)/200)*100);
+    return '<div class="nps-dim-item"><div class="nps-dim-row"><span class="nps-dim-name">'+it.name+'</span><span class="nps-dim-score" style="color:'+col+'">'+it.nps+'</span></div><div class="nps-dim-bar-bg"><div class="nps-dim-bar-fill" style="width:'+barW+'%;background:'+col+'"></div></div><div class="nps-dim-meta">▲ '+it.p+' prom. &nbsp;◆ '+it.n+' neut. &nbsp;▼ '+it.det+' detr. &nbsp;Σ '+it.total+'</div></div>';
   }).join('');
 }
 
-function populateNpsFilters() {
-  if (!npsData.length) return;
-  const meses = [...new Set(npsData.map(d => d.mes).filter(Boolean))].sort();
-  const unidades = [...new Set(npsData.map(d => d.unidade).filter(Boolean))].sort();
-  const regioes = [...new Set(npsData.map(d => d.classificacao).filter(Boolean))].sort();
-  const selMes = document.getElementById('filtroMes');
-  const selUni = document.getElementById('filtroUnidade');
-  const selReg = document.getElementById('filtroRegiao');
-  meses.forEach(m => { const o = document.createElement('option'); o.value = m; o.textContent = m; selMes.appendChild(o); });
-  unidades.forEach(u => { const o = document.createElement('option'); o.value = u; o.textContent = u; selUni.appendChild(o); });
-  regioes.forEach(r => { const o = document.createElement('option'); o.value = r; o.textContent = r; selReg.appendChild(o); });
-  selMes.onchange = renderNps;
-  selUni.onchange = renderNps;
-  selReg.onchange = renderNps;
+function renderTrend(data){
+  var allM=sortMonths([...new Set(data.map(function(d){return d.mes}).filter(Boolean))]);
+  if(allM.length<2){document.getElementById('trendSvg').innerHTML='<text x="280" y="90" fill="rgba(255,255,255,.2)" font-size="12" text-anchor="middle" font-family="Inter">Dados insuficientes para tendência</text>';return;}
+  var points=allM.map(function(m){return {mes:m,...calcNPS(data.filter(function(d){return d.mes===m}))}});
+  var W=560, H=160, padL=40, padR=20, padT=20, padB=30;
+  var chartW=W-padL-padR, chartH=H-padT-padB;
+  var xs=points.map(function(_,i){return padL+(i/(points.length-1))*chartW});
+  var ys=points.map(function(p){return padT+((100-p.nps)/200)*chartH});
+  var pathD='';
+  for(var i=0;i<points.length;i++){pathD+=(i===0?'M':'L')+xs[i]+','+ys[i]}
+  var areaD=pathD+' L'+xs[xs.length-1]+','+(H-padB)+' L'+padL+','+(H-padB)+' Z';
+  var gridLines='';
+  [0,25,50,75,100].forEach(function(v){
+    var y=padT+((100-v)/200)*chartH;
+    gridLines+='<line x1="'+padL+'" y1="'+y+'" x2="'+(W-padR)+'" y2="'+y+'" stroke="rgba(255,255,255,.05)" stroke-width="1"/><text x="'+(padL-6)+'" y="'+(y+4)+'" fill="rgba(255,255,255,.2)" font-size="9" font-family="Inter" text-anchor="end">'+v+'</text>';
+  });
+  var dots='';
+  points.forEach(function(p,i){
+    var col=npsColor(p.nps);
+    var isLast=i===points.length-1;
+    dots+='<circle cx="'+xs[i]+'" cy="'+ys[i]+'" r="'+(isLast?5:3.5)+'" fill="'+(isLast?col:'#0f1525')+'" stroke="'+col+'" stroke-width="'+(isLast?0:2)+'"/>';
+    if(isLast){dots+='<rect x="'+(xs[i]-20)+'" y="'+(ys[i]-26)+'" width="40" height="20" rx="6" fill="'+col+'"/><text x="'+xs[i]+'" y="'+(ys[i]-12)+'" fill="#fff" font-size="10" font-family="Inter" font-weight="700" text-anchor="middle">NPS '+p.nps+'</text><polygon points="'+(xs[i]-4)+','+(ys[i]-6)+' '+(xs[i]+4)+','+(ys[i]-6)+' '+xs[i]+','+(ys[i]-2)+'" fill="'+col+'"/>'}
+  });
+  var labels='';
+  points.forEach(function(p,i){
+    if(points.length>8 && i%2!==0 && i!==points.length-1) return;
+    labels+='<text x="'+xs[i]+'" y="'+(H-padB+16)+'" fill="rgba(255,255,255,.25)" font-size="9" font-family="Inter" text-anchor="middle">'+p.mes+'</text>';
+  });
+  document.getElementById('trendSvg').innerHTML='<defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ED1C24" stop-opacity=".2"/><stop offset="100%" stop-color="#ED1C24" stop-opacity="0"/></linearGradient></defs>'+gridLines+'<path d="'+areaD+'" fill="url(#tg)"/><path d="'+pathD+'" fill="none" stroke="#ED1C24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'+dots+labels;
+}
+
+function renderStrategic(data){
+  var groups={ArcelorMittal:[],Vale:[],Petroreconcavo:[],Wind:[],Outros:[],Geral:data.slice()};
+  data.forEach(function(d){ var c=getCategory(d); if(groups[c]) groups[c].push(d); else groups['Outros'].push(d); });
+  var order=['ArcelorMittal','Vale','Petroreconcavo','Wind','Outros','Geral'];
+  var items=order.map(function(k){return {name:k,...calcNPS(groups[k])}});
+  document.getElementById('strategicBoard').innerHTML=items.map(function(it){
+    var col=it.total?npsColor(it.nps):'rgba(255,255,255,.15)';
+    var z=npsZone(it.nps);
+    return '<div class="nps-strat-card"><div class="nps-strat-top-bar" style="background:'+col+'"></div><div class="nps-strat-name">'+it.name+'</div><div class="nps-strat-score" style="color:'+col+'">'+(it.total?it.nps:'—')+'</div>'+(it.total?'<span class="nps-strat-zone '+z.cls+'" style="font-size:7px">'+z.label+'</span>':'<span style="font-size:9px;opacity:.2">Sem dados</span>')+'<div class="nps-strat-bottom">'+(it.total?'<span>▲ '+it.p+'</span><span>◆ '+it.n+'</span><span>▼ '+it.det+'</span><span style="opacity:.3">Σ '+it.total+'</span>':'')+'</div></div>';
+  }).join('');
+}
+
+function renderMonthly(data){
+  var allM=sortMonths([...new Set(data.map(function(d){return d.mes}).filter(Boolean))]);
+  var points=allM.map(function(m){return {mes:m,...calcNPS(data.filter(function(d){return d.mes===m}))}});
+  document.getElementById('monthlyHist').innerHTML=points.reverse().map(function(p){
+    var col=npsColor(p.nps);
+    var barW=Math.max(5,((p.nps+100)/200)*100);
+    return '<div class="nps-month-bar-item"><div class="nps-month-label">'+p.mes+'</div><div class="nps-month-bar-bg"><div class="nps-month-bar-fill" style="width:'+barW+'%;background:'+col+'50;"><span style="color:'+col+'">'+p.total+' resp.</span></div></div><div class="nps-month-nps" style="color:'+col+'">'+p.nps+'</div></div>';
+  }).join('');
+}
+
+function renderFeedbacks(data){
+  var withFeedback=data.filter(function(d){return d.feedback}).reverse().slice(0,6);
+  document.getElementById('feedbacksList').innerHTML=withFeedback.map(function(d){
+    var type=d.nota>=9?'p':d.nota>=7?'n':'d';
+    var badgeBg=type==='p'?'rgba(0,166,80,.15)':type==='n'?'rgba(253,185,19,.15)':'rgba(239,65,54,.15)';
+    var badgeColor=type==='p'?'#00A650':type==='n'?'#FDB913':'#EF4136';
+    var tagCls=type==='p'?'nps-zona-excelencia':type==='n'?'nps-zona-aperfeicoamento':'nps-zona-critica';
+    var tagLabel=type==='p'?'Promotor':type==='n'?'Neutro':'Detrator';
+    return '<div class="nps-feedback-item"><div class="nps-feedback-score" style="background:'+badgeBg+';color:'+badgeColor+'">'+d.nota+'</div><div class="nps-feedback-text">"'+d.feedback+'"</div><div class="nps-feedback-meta"><span>'+(d.cliente||'—')+'</span><span>'+(d.unidade||'—')+'</span><span>'+d.mes+'</span><span class="nps-feedback-tag '+tagCls+'">'+tagLabel+'</span></div></div>';
+  }).join('');
+}
+
+function renderNps(){
+  var data=getFilteredData();
+  renderHero(data);
+  renderDimension(data,'unidade','dimUnidade');
+  renderDimension(data,'cliente','dimCliente');
+  renderTrend(data);
+  renderStrategic(data);
+  renderMonthly(data);
+  renderFeedbacks(data);
+}
+
+window.setPeriod = function(p, btn){
+  activePeriod=p;
+  document.querySelectorAll('.nps-period-btn').forEach(function(b){b.classList.remove('active')});
+  btn.classList.add('active');
+  document.getElementById('f-mes').value='Todos';
+  filters.mes='Todos';
+  renderNps();
+};
+
+window.applyFilters = function(){
+  filters.mes = document.getElementById('f-mes').value;
+  filters.estrategico = document.getElementById('f-estrategico').value;
+  filters.unidade = document.getElementById('f-unidade').value;
+  filters.cliente = document.getElementById('f-cliente').value;
+  renderNps();
+};
+
+function initNpsDashboard() {
+  populateFilters();
+  renderNps();
+  setTimeout(function(){renderNps();}, 300);
 }
 
 /* ── DASHBOARD ── */
 function renderDashboard() {
-  const stats = calcNps(npsData);
-  document.getElementById('dashNpsScore').textContent = stats.score;
-  document.getElementById('dashNpsTotal').textContent = stats.total + ' respostas';
-  document.getElementById('dashDistP').style.width = stats.pctP + '%';
-  document.getElementById('dashDistN').style.width = stats.pctN + '%';
-  document.getElementById('dashDistD').style.width = stats.pctD + '%';
-  document.getElementById('dashPctP').textContent = stats.pctP + '%';
-  document.getElementById('dashPctN').textContent = stats.pctN + '%';
-  document.getElementById('dashPctD').textContent = stats.pctD + '%';
-
-  const tbody = document.getElementById('dashNpsTable');
-  if (npsData.length) {
-    tbody.innerHTML = `<table class="nps-table"><thead><tr><th>Unidade</th><th>Nota</th><th>Classificação</th><th>Feedback</th></tr></thead><tbody>${npsData.slice(0, 20).map(d => {
-      const cl = getClassif(d.nota);
-      return `<tr><td>${d.unidade}</td><td><span class="nps-badge ${getClassifBadge(cl)}">${d.nota}</span></td><td>${cl}</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${d.feedback || '—'}</td></tr>`;
-    }).join('')}</tbody></table>`;
+  var s = calcNPS(RAW_DATA);
+  document.getElementById('dashNpsScore').textContent = RAW_DATA.length?s.nps:'—';
+  document.getElementById('dashNpsTotal').textContent = RAW_DATA.length?s.total+' respostas':'— respostas';
+  document.getElementById('dashDistP').style.width = RAW_DATA.length?((s.p/s.total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('dashDistN').style.width = RAW_DATA.length?((s.n/s.total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('dashDistD').style.width = RAW_DATA.length?((s.det/s.total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('dashPctP').textContent = RAW_DATA.length?((s.p/s.total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('dashPctN').textContent = RAW_DATA.length?((s.n/s.total)*100).toFixed(1)+'%':'0%';
+  document.getElementById('dashPctD').textContent = RAW_DATA.length?((s.det/s.total)*100).toFixed(1)+'%':'0%';
+  var tbody = document.getElementById('dashNpsTable');
+  if (RAW_DATA.length) {
+    tbody.innerHTML = '<table class="nps-table"><thead><tr><th>Unidade</th><th>Nota</th><th>Classificação</th><th>Feedback</th></tr></thead><tbody>'+RAW_DATA.slice(0, 20).map(function(d){
+      var cl = d.nota>=9?'Promotor':d.nota>=7?'Neutro':'Detrator';
+      var bc = cl==='Promotor'?'prom':cl==='Neutro'?'neut':'detr';
+      return '<tr><td>'+(d.unidade||'')+'</td><td><span class="nps-badge '+bc+'">'+d.nota+'</span></td><td>'+cl+'</td><td style="max-width:250px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">'+(d.feedback||'—')+'</td></tr>';
+    }).join('')+'</tbody></table>';
   } else {
     tbody.innerHTML = '<div class="loading">Carregando NPS...</div>';
   }
@@ -836,11 +970,7 @@ document.querySelectorAll('.nav-item[data-view]').forEach(el => {
 });
 
 /* ── INIT ── */
-loadNpsData().then(() => {
-  populateNpsFilters();
-  renderDashboard();
-  renderNps();
-});
+loadNpsData().then(() => { renderDashboard(); });
 loadUsers();
 
 </script>
