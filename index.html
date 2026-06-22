@@ -341,54 +341,6 @@
         useEffect(() => {
             handleLogin();
         }, []);
-            .then(r => r.json())
-            .then(res => {
-                if (res.result === "success") {
-                    const hubUser = JSON.parse(localStorage.getItem('makro_user')) || {};
-                    setUser({ nome: hubUser.nome || res.nome, email: hubUser.email || res.email, tipo: res.tipo });
-                    
-                    let baseDados = res.metrics?.baseDados || [];
-                    let listaContratos = res.metrics?.listaContratos || [];
-
-                    if (hubUser.npsNivel === 'Cliente') {
-                        const liberados = (hubUser.npsFiltro || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-                        if (liberados.length > 0) {
-                            baseDados = baseDados.filter(d => liberados.some(lib => String(d.numContrato).toLowerCase().includes(lib) || (d.cliente || '').toLowerCase().includes(lib)));
-                            listaContratos = listaContratos.filter(c => liberados.some(lib => String(c.numero).toLowerCase().includes(lib) || (c.exibicao || '').toLowerCase().includes(lib)));
-                        } else { baseDados = []; listaContratos = []; }
-                    } else if (hubUser.npsNivel === 'ADM') {
-                        const visaoAdm = hubUser.npsVisaoAdm || 'Geral';
-                        const arrayFiltro = (hubUser.npsFiltro || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
-                        
-                        if (visaoAdm === 'Unidade' && arrayFiltro.length > 0) {
-                            baseDados = baseDados.filter(d => arrayFiltro.some(f => (d.unidade || '').toLowerCase() === f || (d.unidade || '').toLowerCase().includes(f)));
-                        } else if (visaoAdm === 'Contrato' && arrayFiltro.length > 0) {
-                            baseDados = baseDados.filter(d => arrayFiltro.some(f => (d.contrato || '').toLowerCase().includes(f)));
-                        } else if ((visaoAdm === 'Unidade' || visaoAdm === 'Contrato') && arrayFiltro.length === 0) {
-                            baseDados = [];
-                        }
-                        
-                        if (visaoAdm !== 'Geral') {
-                            const allowedContracts = new Set(baseDados.map(d => d.contrato));
-                            listaContratos = listaContratos.filter(c => allowedContracts.has(c.exibicao));
-                        }
-                    }
-
-                    setRawData(baseDados);
-                    setContractsList(listaContratos);
-                    
-                    const meses = baseDados.map(d => d.mes).filter(Boolean).filter(m => VALID_MONTH_REGEX.test(m));
-                    const sorted = sortMonthsChronologically([...new Set(meses)]);
-                    if (sorted.length) setSurveyData(prev => ({...prev, mesReferente: sorted[sorted.length-1]}));
-
-                    window.makroNpsData = baseDados;
-                    window.makroNpsLastMonth = sorted.length ? sorted[sorted.length-1] : null;
-                    window.dispatchEvent(new Event('npsDataLoaded'));
-                }
-                setView('dashboard');
-            })
-            .catch(() => setView('dashboard'));
-        }, []);
 
         const handleSurveySubmit = async (e) => {
             e.preventDefault(); const errs = {};
