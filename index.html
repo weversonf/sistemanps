@@ -660,7 +660,7 @@ var StrategicNPSBoard = function StrategicNPSBoard(_ref7) {
   });
 };
 var NPSApp = function NPSApp() {
-  var _useState3 = useState('loading'),
+  var _useState3 = useState(localStorage.getItem('makro_user') ? 'loading' : 'login'),
     _useState4 = _slicedToArray(_useState3, 2),
     view = _useState4[0],
     setView = _useState4[1];
@@ -751,8 +751,11 @@ var NPSApp = function NPSApp() {
     });
   }, [rawData]);
   useEffect(function () {
-    var userLogin = localStorage.getItem('makro_user') ? JSON.parse(localStorage.getItem('makro_user')).login || '' : '';
-    fetch("".concat(SCRIPT_URL, "?action=login")).then(function (r) {
+    var hubUser = JSON.parse(localStorage.getItem('makro_user')) || {};
+    var userLogin = hubUser.login || '';
+    var userPass = hubUser.pass || '';
+    if (!userLogin) { setView('login'); return; }
+    fetch("".concat(SCRIPT_URL, "?action=login&user=").concat(encodeURIComponent(userLogin), "&pass=").concat(encodeURIComponent(userPass))).then(function (r) {
       return r.json();
     }).then(function (res) {
       if (res.result === "success") {
@@ -1059,6 +1062,61 @@ var NPSApp = function NPSApp() {
       };
     }
   }, [view]);
+  var handleLogin = function handleLogin(email, pass) {
+    setView('loading');
+    fetch("".concat(SCRIPT_URL, "?action=login&user=").concat(encodeURIComponent(email), "&pass=").concat(encodeURIComponent(pass))).then(function (r) { return r.json(); }).then(function (res) {
+      if (res.result === 'success') {
+        localStorage.setItem('makro_user', JSON.stringify({ login: email, pass: pass, nome: res.nome, email: email, tipo: res.tipo, npsNivel: res.npsNivel || 'ADM', npsFiltro: res.npsFiltro || '', npsVisaoAdm: res.npsVisaoAdm || '' }));
+        window.location.reload();
+      } else {
+        alert('Credenciais inválidas. Verifique seu email e senha.');
+        setView('login');
+      }
+    }).catch(function () {
+      alert('Erro de conexão com o servidor.');
+      setView('login');
+    });
+  };
+  if (view === 'login') return /*#__PURE__*/_jsxs("div", {
+    className: "flex flex-col items-center justify-center min-h-screen bg-[#010816] p-4",
+    children: [/*#__PURE__*/_jsx("form", {
+      onSubmit: function onSubmit(e) { e.preventDefault(); handleLogin(e.target.email.value, e.target.pass.value); },
+      className: "w-full max-w-sm bg-white/5 border border-white/10 p-8 rounded-[30px] space-y-4",
+      children: [/*#__PURE__*/_jsx("img", {
+        src: "https://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png",
+        className: "h-12 mx-auto mb-4 opacity-80"
+      }), /*#__PURE__*/_jsx("h1", {
+        className: "text-xl font-black text-center uppercase tracking-widest",
+        children: "Painel NPS"
+      }), /*#__PURE__*/_jsxs("div", {
+        children: [/*#__PURE__*/_jsx("label", {
+          className: "text-[10px] font-bold uppercase opacity-40 block mb-1",
+          children: "Email"
+        }), /*#__PURE__*/_jsx("input", {
+          name: "email",
+          type: "email",
+          required: true,
+          placeholder: "seu@email.com",
+          className: "w-full bg-[#010816] border border-white/10 p-3 rounded-xl text-white text-sm outline-none"
+        })]
+      }), /*#__PURE__*/_jsxs("div", {
+        children: [/*#__PURE__*/_jsx("label", {
+          className: "text-[10px] font-bold uppercase opacity-40 block mb-1",
+          children: "Senha"
+        }), /*#__PURE__*/_jsx("input", {
+          name: "pass",
+          type: "password",
+          required: true,
+          placeholder: "••••••••",
+          className: "w-full bg-[#010816] border border-white/10 p-3 rounded-xl text-white text-sm outline-none"
+        })]
+      }), /*#__PURE__*/_jsx("button", {
+        type: "submit",
+        className: "w-full bg-red-600 p-4 rounded-2xl font-black uppercase text-sm hover:bg-red-700 transition-all",
+        children: "Entrar"
+      })]
+    })]
+  });
   if (view === 'loading') return /*#__PURE__*/_jsx("div", {
     className: "flex h-full items-center justify-center pt-20",
     children: /*#__PURE__*/_jsx("div", {
