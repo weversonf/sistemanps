@@ -248,6 +248,7 @@
     <label>Senha</label>
     <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
     <button class="btn btn-red" onclick="handleLogin()">Entrar</button>
+    <div style="text-align:center;margin-top:8px"><a href="#" onclick="handleForgotPassword();return false" style="font-size:11px;color:var(--muted)">Esqueci minha senha</a></div>
     <div style="text-align:center;margin-top:12px"><a href="#" onclick="openRegister();return false" style="font-size:12px;color:var(--muted)">Primeiro acesso? Criar conta</a></div>
   </div>
 </div>
@@ -394,7 +395,7 @@
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc, where, getDocs, orderBy, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+import { getAuth, signInWithEmailAndPassword, signOut, onAuthStateChanged, createUserWithEmailAndPassword, sendPasswordResetEmail } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyDfIDkJy2k8RcBjXWq34HvG6U3bqMmKLAE",
@@ -411,6 +412,120 @@ const auth = getAuth(app);
 
 /* ── GLOBAIS ── */
 let currentUser = null;
+
+/* ── UI HELPERS ── */
+function showToast(msg, type) {
+  var t=document.getElementById('toast');
+  if(!t) return;
+  t.textContent=msg;
+  t.style.borderLeft=type==='error'?'3px solid var(--red)':'3px solid #00A650';
+  t.className='toast show';
+  clearTimeout(t._hide);
+  t._hide=setTimeout(function(){t.className='toast'},3000);
+}
+function openModal(html) {
+  document.getElementById('modalContent').innerHTML=html;
+  document.getElementById('modalOverlay').classList.add('open');
+}
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('open');
+}
+function showView(view) {
+  document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
+  document.querySelectorAll('.nav-item').forEach(function(v){v.classList.remove('active')});
+  var el=document.getElementById('view'+view.charAt(0).toUpperCase()+view.slice(1));
+  if(el) el.classList.add('active');
+  var nav=document.querySelector('.nav-item[data-view="'+view+'"]');
+  if(nav) nav.classList.add('active');
+  document.getElementById('headerTitle').textContent=
+    view==='dashboard'?'Dashboard':
+    view==='nps'?'Pesquisa NPS':
+    view==='atividades'?'Atividades':'Usuários';
+  if(view==='nps' && RAW_DATA.length) renderNps();
+  if(view==='atividades') loadKanban();
+}
+function enterApp() {
+  document.getElementById('loginScreen').style.display='none';
+  document.getElementById('app').style.display='flex';
+  document.getElementById('userName').textContent=currentUser.nome||currentUser.email;
+  showView('dashboard');
+}
+
+/* ── LOGIN BYPASS (remover quando login for reativado) ── */
+currentUser={uid:'local',email:'local@admin',nome:'Admin',tipo:'admin'};
+enterApp();
+
+window.handleLogin=async function(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var pass=document.getElementById('loginPass').value;
+  var errEl=document.getElementById('loginError');
+  if(!email||!pass){errEl.textContent='Preencha email e senha';errEl.style.display='block';return;}
+  try {
+    var cred=await signInWithEmailAndPassword(auth,email,pass);
+    var snap=await getDoc(doc(db,'usuarios',cred.user.uid));
+    var u=snap.exists()?snap.data():{nome:cred.user.email,tipo:'user'};
+    currentUser={uid:cred.user.uid,email:cred.user.email,nome:u.nome,tipo:u.tipo};
+    enterApp();
+  } catch(e) {
+    errEl.textContent=e.code==='auth/invalid-credential'?'Email ou senha inválidos':'Erro: '+e.message;
+    errEl.style.display='block';
+  }
+};
+
+window.handleLogout=async function(){
+  try{await signOut(auth)}catch(e){}
+  currentUser=null;
+  document.getElementById('loginScreen').style.display='flex';
+  document.getElementById('app').style.display='none';
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginError').style.display='none';
+};
+
+window.openRegister=function(){
+  openModal(`
+    <h2>Criar Conta</h2>
+    <label>Nome</label>
+    <input id="regNome" placeholder="Nome completo">
+    <label>Email</label>
+    <input id="regEmail" type="email" placeholder="seu@email.com">
+    <label>Senha</label>
+    <input id="regPass" type="password" placeholder="mínimo 6 caracteres">
+    <div class="modal-actions">
+      <button class="btn btn-ghost btn-sm" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-red btn-sm" onclick="handleRegister()">Criar Conta</button>
+    </div>
+  `);
+};
+
+window.handleRegister=async function(){
+  var nome=document.getElementById('regNome').value.trim();
+  var email=document.getElementById('regEmail').value.trim();
+  var pass=document.getElementById('regPass').value;
+  if(!nome||!email||!pass){showToast('Preencha todos os campos','error');return;}
+  try {
+    var cred=await createUserWithEmailAndPassword(auth,email,pass);
+    var isFirst=(await getDocs(collection(db,'usuarios'))).empty;
+    await setDoc(doc(db,'usuarios',cred.user.uid),{nome,email,tipo:isFirst?'admin':'user',criadoEm:new Date().toISOString()});
+    closeModal();
+    currentUser={uid:cred.user.uid,email,nome,tipo:isFirst?'admin':'user'};
+    enterApp();
+  } catch(e){showToast('Erro: '+e.message,'error');}
+};
+
+window.handleForgotPassword=async function(){
+  var email=document.getElementById('loginEmail').value.trim();
+  var errEl=document.getElementById('loginError');
+  if(!email){errEl.textContent='Digite seu email primeiro';errEl.style.display='block';return;}
+  try {
+    await sendPasswordResetEmail(auth,email);
+    showToast('Email de redefinição enviado para '+email);
+    errEl.style.display='none';
+  } catch(e) {
+    errEl.textContent=e.code==='auth/user-not-found'?'Email não cadastrado':'Erro: '+e.message;
+    errEl.style.display='block';
+  }
+};
+
 /* ── LOAD NPS DATA ── */
 const SHEET_CSV = "https://docs.google.com/spreadsheets/d/e/2PACX-1vTLod-I2nPflC9uP028rNrDuohmR1gy74E_XCb-A12MDWpE6NNOcwHjf4OQuQpmenY0yP9wAd3-GMQD/pub?output=csv";
 
