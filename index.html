@@ -1,19 +1,17 @@
-<!DOCTYPE html>
-<!-- saved from url=(0044)https://makroengenharia.com.br/painel-makro/ -->
-<html lang="pt-BR"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-  
+<!DOCTYPE html><html lang="pt-BR"><head>
+  <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Painel NPS v21.08</title>
   
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;700;900&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;700;900&display=swap" rel="stylesheet">
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <script src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
-  <script src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <script src="https://unpkg.com/react@18.2.0/umd/react.production.min.js"></script>
+  <script src="https://unpkg.com/react-dom@18.2.0/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <script src="https://unpkg.com/prop-types@15.8.1/prop-types.min.js"></script>
-  <script src="https://unpkg.com/recharts/umd/Recharts.min.js"></script>
+  <script src="https://unpkg.com/recharts@2.12.7/umd/Recharts.js"></script>
 
   <style>
     /* ── Base Hub e Variáveis Globais ─────────────────────────────── */
@@ -97,8 +95,1296 @@
     .animate-slide { animation: slideIn 0.3s ease forwards; }
   </style>
 </head>
-<body>
-  <div id="nps-root"></div>
+<body class="antialiased h-screen w-screen overflow-hidden bg-[#010816]" dir="ltr" spellcheck="false" style="direction: ltr;">
+
+  <div id="global-loader" class="fixed inset-0 bg-[#010816] z-[999] flex flex-col items-center justify-center transition-opacity duration-500">
+    <div class="w-12 h-12 border-4 border-red-600 border-t-transparent rounded-full animate-spin mb-4"><br></div>
+    <p class="text-xs font-black uppercase tracking-[3px] text-gray-500 animate-pulse">Iniciando All in Makro...</p>
+  </div>
+
+  <div id="toast-container" class="fixed bottom-8 right-8 z-[200] flex flex-col gap-2"><br></div>
+  <div id="task-modal" class="hidden-view fixed inset-0 bg-black/80 backdrop-blur-md z-[150] flex items-center justify-center p-4">
+    <div class="bg-[#010816] border border-white/10 w-full max-w-5xl rounded-3xl animate-fadeup flex flex-col max-h-[95vh] overflow-hidden shadow-2xl">
+      <div class="flex justify-between items-center p-6 border-b border-white/5 bg-white/[0.02]">
+        <div class="flex items-center gap-3"><em data-lucide="layout-template" class="text-red-500 w-5 h-5"></em><h2 id="modal-title" class="text-lg font-black uppercase tracking-widest text-white">Detalhes da Operação</h2></div>
+        <button onclick="window.closeTaskModal()" class="text-gray-500 hover:text-white p-2 bg-white/5 hover:bg-red-600 rounded-xl"><em data-lucide="x"></em></button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 custom-scrollbar flex flex-col md:flex-row gap-8">
+        <div class="flex-1 space-y-6">
+          <div><label class="text-[9px] font-black uppercase opacity-40 mb-2 block tracking-widest">Atividade / Equipamento</label><input type="text" id="task-input" required="" class="w-full p-4 rounded-xl text-lg font-bold"></div>
+          <div><label class="text-[9px] font-black uppercase opacity-40 mb-2 block tracking-widest flex items-center gap-2"><em data-lucide="align-left" class="w-3 h-3"></em> Descrição</label><textarea id="task-comment" class="w-full p-4 rounded-xl text-sm min-h-[120px] custom-scrollbar"></textarea></div>
+          <div>
+            <div class="flex justify-between items-center mb-2"><label class="text-[9px] font-black uppercase opacity-40 block tracking-widest flex items-center gap-2"><em data-lucide="check-square" class="w-3 h-3"></em> Sub-tarefas</label><span id="checklist-progress-text" class="text-[10px] font-bold text-gray-500">0%</span></div>
+            <div class="w-full bg-white/5 rounded-full h-2 mb-4"><div id="checklist-progress-bar" class="bg-emerald-500 h-2 rounded-full transition-all" style="width:0%"><br></div><br></div>
+            <div id="checklist-items" class="space-y-2 mb-3"><br></div>
+            <div class="flex gap-2"><input type="text" id="new-check-item" placeholder="Adicionar etapa..." class="flex-1 p-3 rounded-xl text-sm" onkeypress="if(event.key==='Enter') window.addChecklistItem(event)"><button type="button" onclick="window.addChecklistItem()" class="px-4 bg-white/10 hover:bg-white/20 rounded-xl font-bold text-xs transition-colors">Add</button></div>
+          </div>
+        </div>
+        <div class="w-full md:w-64 space-y-6">
+          <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5 space-y-4">
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Solicitante</label><input type="text" id="task-requester" class="w-full p-3 rounded-lg text-xs"></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Prazo</label><input type="date" id="task-deadline" class="w-full p-3 rounded-lg text-xs"></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Status</label><select id="task-status" class="w-full p-3 rounded-lg text-xs cursor-pointer"><option value="Pendente" class="bg-[#010816]">Pendente</option><option value="Em Andamento" class="bg-[#010816]">Em Andamento</option><option value="Concluído" class="bg-[#010816]">Concluído</option></select></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Urgência</label><select id="task-urgency" class="w-full p-3 rounded-lg text-xs cursor-pointer"><option value="1" class="bg-[#010816]">Baixo</option><option value="2" class="bg-[#010816]">Médio</option><option value="3" class="bg-[#010816]">Crítico</option></select></div>
+            <div id="task-profile-row" class="hidden col-span-2"><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Perfil</label><select id="task-profile" class="w-full p-3 rounded-lg text-xs cursor-pointer"><option value="profissional" class="bg-[#010816]">💼 Profissional</option><option value="pessoal" class="bg-[#010816]">🏠 Pessoal</option></select></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Progresso</label><div class="flex items-center gap-2 bg-[#010816] px-3 py-2 rounded-lg border border-white/5"><input type="range" id="task-progress" min="0" max="100" step="5" value="0" class="w-full" oninput="document.getElementById('progress-val').innerText=this.value+'%'"><span id="progress-val" class="text-[10px] font-black text-gray-300 w-8 text-right">0%</span></div></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Etiquetas</label><div id="active-labels" class="flex flex-wrap gap-1 mb-2"><br></div><select id="label-selector" class="w-full p-3 rounded-lg text-xs cursor-pointer" onchange="window.addLabel(this.value)"><option value="">+ Add Etiqueta...</option><option value="red" class="bg-[#010816] text-red-500">Manutenção</option><option value="blue" class="bg-[#010816] text-blue-500">Operacional</option><option value="yellow" class="bg-[#010816] text-yellow-500">Comercial</option><option value="emerald" class="bg-[#010816] text-emerald-500">Logística</option><option value="purple" class="bg-[#010816] text-purple-500">Engenharia</option></select></div>
+          </div>
+          <button type="button" onclick="window.saveTask()" class="w-full py-4 bg-red-600 hover:bg-red-700 rounded-xl font-black uppercase text-xs tracking-widest text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"><em data-lucide="save" class="w-4 h-4"></em> Salvar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="lead-modal" class="hidden-view fixed inset-0 bg-black/80 backdrop-blur-md z-[150] flex items-center justify-center p-4">
+    <div class="bg-[#010816] border border-white/10 w-full max-w-4xl rounded-3xl animate-fadeup flex flex-col max-h-[95vh] overflow-hidden shadow-2xl">
+      <div class="flex justify-between items-center p-6 border-b border-white/5 bg-white/[0.02]">
+        <div class="flex items-center gap-3"><em data-lucide="briefcase" class="text-red-500 w-5 h-5"></em><h2 class="text-lg font-black uppercase tracking-widest text-white">Análise de Fornecedor</h2></div>
+        <button onclick="window.closeLeadModal()" class="text-gray-500 hover:text-white p-2 bg-white/5 hover:bg-red-600 rounded-xl"><em data-lucide="x"></em></button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 custom-scrollbar flex flex-col md:flex-row gap-8">
+        <div class="flex-1 space-y-6">
+          <div><p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest">Razão Social</p><p id="modal-lead-name" class="text-xl font-bold text-white">---</p></div>
+          <div class="grid grid-cols-2 gap-4">
+            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest">CNPJ</p><p id="modal-lead-cnpj" class="text-sm font-bold text-gray-300">---</p></div>
+            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest">Categoria</p><p id="modal-lead-category" class="text-sm font-bold text-gray-300">---</p></div>
+            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest">E-mail</p><p id="modal-lead-email" class="text-sm font-bold text-gray-300">---</p></div>
+            <div><p class="text-[10px] font-black uppercase opacity-40 mb-1 tracking-widest">Telefone / WhatsApp</p><p id="modal-lead-phone" class="text-sm font-bold text-gray-300">---</p></div>
+          </div>
+          <div><p class="text-[10px] font-black uppercase opacity-40 mb-2 tracking-widest">Apresentação / Portfólio</p><div id="modal-lead-description" class="w-full p-4 rounded-xl bg-white/5 border border-white/5 text-sm text-gray-300 min-h-[120px] whitespace-pre-wrap">---</div></div>
+        </div>
+        <div class="w-full md:w-64 space-y-6">
+          <div class="bg-white/[0.02] p-4 rounded-2xl border border-white/5 space-y-4">
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Status</label><select id="modal-lead-status" class="w-full p-3 rounded-lg text-xs cursor-pointer font-bold"><option value="Novo Lead" class="bg-[#010816] text-blue-500">Novo Lead</option><option value="Em Análise" class="bg-[#010816] text-yellow-500">Em Análise</option><option value="Aprovado" class="bg-[#010816] text-emerald-500">Aprovado</option><option value="Recusado" class="bg-[#010816] text-red-500">Recusado</option></select></div>
+            <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Anotações Internas</label><textarea id="modal-lead-notes" placeholder="Notas do setor..." class="w-full p-3 rounded-lg text-xs min-h-[100px] resize-y"></textarea></div>
+          </div>
+          <button type="button" onclick="window.saveLeadStatus()" class="w-full py-4 bg-red-600 hover:bg-red-700 rounded-xl font-black uppercase text-xs tracking-widest text-white transition-all shadow-lg active:scale-95 flex items-center justify-center gap-2"><em data-lucide="save" class="w-4 h-4"></em> Atualizar Ficha</button>
+          <button type="button" onclick="window.deleteLead()" class="w-full py-3 bg-transparent hover:bg-red-500/10 border border-red-500/20 text-red-500 rounded-xl font-bold uppercase text-[10px] tracking-widest transition-all flex items-center justify-center gap-2"><em data-lucide="trash" class="w-3 h-3"></em> Excluir</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL EDITAR COLUNAS KANBAN -->
+  <div id="kanban-col-modal" class="hidden-view fixed inset-0 bg-black/80 backdrop-blur-md z-[160] flex items-center justify-center p-4">
+    <div class="bg-[#010816] border border-white/10 w-full max-w-md rounded-3xl animate-fadeup flex flex-col max-h-[90vh] overflow-hidden shadow-2xl">
+      <div class="flex justify-between items-center p-6 border-b border-white/5 bg-white/[0.02]">
+        <div class="flex items-center gap-3"><em data-lucide="columns" class="text-red-500 w-5 h-5"></em><h2 class="text-base font-black uppercase tracking-widest text-white">Suas Colunas</h2></div>
+        <button onclick="window.closeKanbanColModal()" class="text-gray-500 hover:text-white p-2 bg-white/5 hover:bg-red-600 rounded-xl transition-all"><em data-lucide="x"></em></button>
+      </div>
+      <div class="flex-1 overflow-y-auto p-6 custom-scrollbar space-y-3" id="kanban-col-list"></div>
+      <div class="p-6 border-t border-white/5 space-y-3">
+        <div class="flex gap-2">
+          <input type="text" id="kanban-col-new-name" placeholder="Nome da nova coluna..." class="flex-1 p-3 rounded-xl text-sm">
+          <select id="kanban-col-new-color" class="p-3 rounded-xl text-sm w-32">
+            <option value="gray" class="bg-[#010816]">⬜ Padrão</option>
+            <option value="blue" class="bg-[#010816]">🔵 Azul</option>
+            <option value="emerald" class="bg-[#010816]">🟢 Verde</option>
+            <option value="yellow" class="bg-[#010816]">🟡 Amarelo</option>
+            <option value="red" class="bg-[#010816]">🔴 Vermelho</option>
+            <option value="purple" class="bg-[#010816]">🟣 Roxo</option>
+          </select>
+        </div>
+        <button onclick="window.addKanbanCol()" class="w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl font-black uppercase text-xs tracking-widest text-white transition-all flex items-center justify-center gap-2"><em data-lucide="plus" class="w-4 h-4"></em> Adicionar Coluna</button>
+        <button onclick="window.saveKanbanCols()" class="w-full py-3 bg-red-600 hover:bg-red-700 rounded-xl font-black uppercase text-xs tracking-widest text-white transition-all flex items-center justify-center gap-2"><em data-lucide="save" class="w-4 h-4"></em> Salvar Layout</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="auth-view" class="hidden-view h-screen w-full flex items-center justify-center bg-[#010816]">
+    <div class="w-full max-w-md mx-4 glass-card p-12 text-center animate-fadeup shadow-2xl border-t-4 border-red-600">
+      <img src="http://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png" class="h-10 mx-auto mb-8" alt="Logo Makro">
+      <h2 class="text-sm font-bold mb-8 tracking-widest uppercase opacity-50">All in Makro</h2>
+      
+      <div class="space-y-4 text-left">
+          <button id="btn-google-login" type="button" class="w-full bg-white text-black p-4 rounded-2xl font-black uppercase hover:bg-gray-200 shadow-xl active:scale-95 transition-all flex items-center justify-center gap-3 text-sm">
+            <svg class="w-5 h-5" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"></path><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"></path><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"></path><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"></path></svg>
+            Entrar com Google
+          </button>
+          
+          <div class="relative flex py-5 items-center">
+              <div class="flex-grow border-t border-white/10"><br></div>
+              <span class="flex-shrink-0 mx-4 text-white/30 text-[10px] font-black uppercase tracking-widest">ou</span>
+              <div class="flex-grow border-t border-white/10"><br></div>
+          </div>
+          
+          <form id="auth-form" class="space-y-4">
+              <input type="text" id="auth-email" placeholder="Usuário ou Email" required="" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white outline-none focus:border-red-500 transition-all">
+              <input type="password" id="auth-password" placeholder="Senha" required="" class="w-full p-4 rounded-2xl text-sm bg-white/5 border border-white/10 text-white outline-none focus:border-red-500 transition-all">
+              <button type="submit" class="w-full bg-red-600 p-5 rounded-2xl font-black uppercase hover:bg-red-700 shadow-xl shadow-red-600/20 active:scale-95 transition-all text-white text-sm">Entrar no Hub</button>
+          </form>
+      </div>
+    </div>
+  </div>
+
+  <div id="app-view" class="hidden-view h-screen w-full flex flex-col bg-[#010816]">
+    
+    <header class="h-20 flex-shrink-0 border-b border-white/5 flex items-center justify-between px-6 lg:px-8 bg-black/20 backdrop-blur-md z-40">
+      <div class="flex items-center gap-4">
+         <img src="http://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png" class="h-6 hidden md:block" alt="Logo Makro">
+         <div class="h-6 w-[1px] bg-white/10 hidden md:block mx-2"><br></div>
+         <h2 id="header-title" class="font-black uppercase tracking-[3px] text-xs opacity-60"><em data-lucide="layers" class="inline w-4 h-4 mr-2 text-red-500"></em> Board Operacional</h2>
+      </div>
+      <div class="flex items-center gap-6">
+        <div class="text-right hidden sm:block border-r border-white/10 pr-6">
+          <p id="user-display-name" class="text-xs font-black uppercase tracking-tighter text-gray-200">Usuário</p>
+          <p id="user-display-email" class="text-[9px] text-red-500 font-bold uppercase tracking-[2px]">email@makro.com.br</p>
+        </div>
+        <div id="profile-filter" class="hidden items-center gap-1 bg-white/5 border border-white/10 p-1 rounded-xl">
+          <button id="pf-profissional" onclick="window.setProfile('profissional')" class="pf-btn active-pf px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all text-white bg-white/10">💼 Profissional</button>
+          <button id="pf-pessoal"      onclick="window.setProfile('pessoal')"      class="pf-btn px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all text-gray-500 hover:text-white">🏠 Pessoal</button>
+          <button id="pf-todos"        onclick="window.setProfile('todos')"        class="pf-btn px-3 py-1.5 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all text-gray-500 hover:text-white">⬡ Todos</button>
+        </div>
+        <button id="btn-header-add" onclick="window.openTaskModal()" class="flex p-3 px-6 rounded-xl bg-white/10 hover:bg-white/20 text-white text-[10px] font-black uppercase tracking-widest items-center gap-2 transition-all">
+          <em data-lucide="plus" class="w-4 h-4"></em> Lançar
+        </button>
+        <button onclick="handleLogout()" class="text-gray-500 hover:text-red-500 transition-colors"><em data-lucide="log-out" class="w-5 h-5"></em></button>
+      </div>
+    </header>
+
+<div class="flex-1 flex overflow-hidden">
+  <aside id="desktop-sidebar" 
+         onmouseenter="window.expandSidebar()" 
+         onmouseleave="window.collapseSidebar()"
+         class="w-[84px] border-r border-white/5 px-3 py-8 flex flex-col hidden lg:flex bg-black/10 transition-all duration-300 relative flex-shrink-0">
+    
+    <div class="flex items-center justify-between mb-8 h-8 overflow-hidden">
+      <!-- Adicionada a classe hidden-view para começar escondido -->
+      <span class="sidebar-text hidden-view text-[10px] font-black uppercase tracking-[3px] text-gray-400">Menu</span>
+      <button onclick="window.toggleDesktopSidebar()" class="p-2 text-gray-500 hover:text-white bg-white/5 hover:bg-white/10 rounded-xl flex-shrink-0 ml-auto">
+        <i data-lucide="chevron-right" id="sidebar-toggle-icon" class="w-4 h-4"></i>
+      </button>
+    </div>
+    <!-- O restante do nav segue aqui... -->
+        
+        <nav class="flex-1 space-y-2 overflow-y-auto custom-scrollbar pr-2">
+          <div id="menu-group-nps" class="hidden-view border-t border-white/5 pt-4 mt-2">
+             <div onclick="changeView('nps')" class="nav-item-nps p-4 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl flex items-center gap-4 cursor-pointer font-bold uppercase text-[10px] tracking-[2px] transition-all">
+              <i data-lucide="bar-chart-2" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Painel NPS</span>
+            </div>
+          </div>
+          <div id="menu-group-suprimentos" class="hidden-view border-t border-white/5 pt-4 mt-2">
+            <button onclick="window.toggleSubMenu('desktop-suprimentos')" class="w-full p-4 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl flex items-center justify-between cursor-pointer transition-all">
+              <div class="flex items-center gap-4"><i data-lucide="package" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view font-bold uppercase text-[10px] tracking-[2px]">Suprimentos</span></div>
+              <i data-lucide="chevron-down" id="icon-desktop-suprimentos" class="w-4 h-4 sidebar-text hidden-view transition-transform duration-300 transform -rotate-90"></i>
+            </button>
+            <div id="desktop-suprimentos" class="hidden space-y-1 mt-2 pl-4">
+              <div onclick="changeView('suprimentos')" class="nav-item-suprimentos p-3 text-gray-500 hover:text-white rounded-xl flex items-center gap-3 cursor-pointer font-bold uppercase text-[9px] tracking-[2px] transition-all" title="Gestão de Leads"><i data-lucide="inbox" class="w-3 h-3 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Gestão de Leads</span></div>
+            </div>
+          </div>
+          <div id="menu-group-atividades" class="hidden-view border-t border-white/5 pt-4 mt-2">
+            <button onclick="window.toggleSubMenu('desktop-atividades')" class="w-full p-4 text-gray-400 hover:text-white bg-white/5 rounded-2xl flex items-center justify-between cursor-pointer transition-all">
+              <div class="flex items-center gap-4"><i data-lucide="briefcase" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view font-bold uppercase text-[10px] tracking-[2px]">Atividades</span></div>
+              <i data-lucide="chevron-down" id="icon-desktop-atividades" class="w-4 h-4 sidebar-text hidden-view transition-transform duration-300"></i>
+            </button>
+            <div id="desktop-atividades" class="hidden space-y-1 mt-2 pl-4">
+              <div onclick="changeView('dashboard')" class="nav-item-dashboard p-3 bg-red-600/10 text-red-500 rounded-xl flex items-center gap-3 cursor-pointer font-bold uppercase text-[9px] tracking-[2px] transition-all" title="Dashboard"><i data-lucide="layout-dashboard" class="w-3 h-3 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Dashboard</span></div>
+              <div onclick="changeView('table')" class="nav-item-table p-3 text-gray-500 hover:text-white rounded-xl flex items-center gap-3 cursor-pointer font-bold uppercase text-[9px] tracking-[2px] transition-all" title="Tabela"><i data-lucide="table" class="w-3 h-3 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Tabela</span></div>
+              <div onclick="changeView('list')" class="nav-item-list p-3 text-gray-500 hover:text-white rounded-xl flex items-center gap-3 cursor-pointer font-bold uppercase text-[9px] tracking-[2px] transition-all" title="Lista"><i data-lucide="list" class="w-3 h-3 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Lista</span></div>
+              <div onclick="changeView('kanban')" class="nav-item-kanban p-3 text-gray-500 hover:text-white rounded-xl flex items-center gap-3 cursor-pointer font-bold uppercase text-[9px] tracking-[2px] transition-all" title="Kanban"><i data-lucide="columns" class="w-3 h-3 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Kanban</span></div>
+            </div>
+          </div>
+          <div id="menu-group-admin" class="hidden-view border-t border-white/5 pt-4 mt-2">
+             <div onclick="changeView('users')" class="nav-item-users p-4 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl flex items-center gap-4 cursor-pointer font-bold uppercase text-[10px] tracking-[2px] transition-all">
+              <i data-lucide="users" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Usuários</span>
+            </div>
+          </div>
+          <div class="border-t border-white/5 pt-4 mt-2">
+            <a href="http://makroengenharia.com.br/brandhub/" target="_blank" class="w-full p-4 text-gray-400 hover:text-white hover:bg-white/5 rounded-2xl flex items-center gap-4 cursor-pointer transition-all">
+              <i data-lucide="external-link" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view font-bold uppercase text-[10px] tracking-[2px]"> Brand Hub</span>
+            </a>
+          </div>
+        </nav>
+        <button onclick="handleLogout()" class="p-4 text-gray-500 hover:text-red-500 flex items-center gap-4 transition-all font-black uppercase text-[10px] tracking-[3px] mt-auto" title="Sair"><i data-lucide="log-out" class="w-4 h-4 flex-shrink-0"></i><span class="sidebar-text hidden-view whitespace-nowrap"> Sair</span></button>
+      </aside>
+
+		<main class="flex-1 overflow-y-auto p-4 md:p-8 pb-28 md:pb-8 custom-scrollbar relative" id="main-content">
+		  
+
+        <div id="dashboard-view" class="hidden-view">
+          <div class="space-y-8">
+            <h2 class="text-xl font-black uppercase tracking-widest text-white mb-6">Atividades</h2>
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
+              <div class="glass-card p-6 flex flex-col items-center text-center"><span class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-2">Total Lançado</span><span id="dash-total" class="text-4xl font-black text-white">0</span></div>
+              <div class="glass-card p-6 flex flex-col items-center text-center border-b-4 border-emerald-500"><span class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-2">Concluídas</span><span id="dash-concluidas" class="text-4xl font-black text-emerald-500">0</span></div>
+              <div class="glass-card p-6 flex flex-col items-center text-center border-b-4 border-blue-500"><span class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-2">Em Execução</span><span id="dash-andamento" class="text-4xl font-black text-blue-500">0</span></div>
+              <div class="glass-card p-6 flex flex-col items-center text-center border-b-4 border-red-500 bg-red-500/5"><span class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-2">Atrasadas</span><span id="dash-atrasadas" class="text-4xl font-black text-red-500">0</span></div>
+            </div>
+            
+            <div class="glass-card p-8 mt-8">
+              <h3 class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-4">Progresso Global</h3>
+              <div class="w-full bg-white/5 rounded-full h-4 mb-2 overflow-hidden border border-white/10"><div id="dash-progress-bar" class="bg-red-600 h-4 rounded-full transition-all duration-1000 ease-out" style="width:0%"></div></div>
+              <div class="flex justify-between text-xs font-black uppercase tracking-widest text-gray-400"><span>0%</span><span id="dash-progress-text" class="text-white text-lg">0%</span><span>100%</span></div>
+            </div>
+
+            <div id="mini-nps-widget" class="hidden-view glass-card p-8 mt-6 border-t-4 border-emerald-500">
+                <h3 class="text-[10px] font-black uppercase opacity-40 tracking-widest mb-6 flex items-center gap-2">
+                    <i data-lucide="bar-chart-2" class="w-4 h-4 text-emerald-500"></i> Resumo NPS (Visão Comercial / Marketing)
+                </h3>
+                <div id="mini-nps-content" class="flex flex-col md:flex-row items-center gap-10">
+                    <p class="text-xs text-gray-400">Aguardando dados do NPS...</p>
+                </div>
+            </div>
+
+          </div>
+        </div>
+
+        <div id="table-view" class="hidden-view flex-col h-full">
+          <div class="glass-card overflow-hidden border-white/5 flex flex-col min-h-[500px] h-full">
+            <div class="flex-1 overflow-auto custom-scrollbar">
+              <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-white/5 sticky top-0 z-10"><tr class="text-[9px] font-black uppercase tracking-[2px] text-gray-400"><th class="p-4 border-b border-white/10">Atividade</th><th class="p-4 border-b border-white/10">Solicitante</th><th class="p-4 border-b border-white/10 text-center">Progresso</th><th class="p-4 border-b border-white/10 text-center">Status</th><th class="p-4 border-b border-white/10 text-center">Prazo</th><th class="p-4 border-b border-white/10 text-center">Urgência</th><th class="p-4 border-b border-white/10 text-right">Ações</th></tr></thead>
+                <tbody id="task-table-content" class="divide-y divide-white/5 text-sm text-gray-300"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="list-view" class="hidden-view">
+          <div class="glass-card overflow-hidden border-white/5">
+            <div id="task-list-content" class="divide-y divide-white/5"></div>
+          </div>
+        </div>
+
+        <div id="kanban-view" class="hidden-view h-full">
+          <div class="flex items-center justify-end mb-3 flex-shrink-0">
+            <button onclick="window.openKanbanColModal()" class="flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-400 hover:text-white text-[10px] font-black uppercase tracking-widest transition-all">
+              <i data-lucide="settings-2" class="w-3.5 h-3.5"></i> Editar Colunas
+            </button>
+          </div>
+          <div id="kanban-board" class="flex gap-4 md:gap-6 overflow-x-auto custom-scrollbar pb-6 items-start" style="height:calc(100vh - 200px); -webkit-overflow-scrolling:touch;"></div>
+        </div>
+
+        <div id="suprimentos-view" class="hidden-view flex-col h-full min-h-[600px]">
+          <div class="flex justify-between items-end mb-8 flex-shrink-0">
+            <div><h2 class="text-2xl font-black uppercase tracking-widest text-white">Homologação de Fornecedores</h2><p class="text-xs text-gray-400 mt-2">Gerencie as empresas cadastradas via Portal Público.</p></div>
+            <div class="flex gap-4">
+               <div class="glass-card px-6 py-3 flex flex-col items-center justify-center"><span class="text-[9px] font-black uppercase tracking-widest text-gray-500 mb-1">Total</span><span id="metric-sup-total" class="text-xl font-black text-white">0</span></div>
+               <div class="glass-card px-6 py-3 flex flex-col items-center justify-center border-b-2 border-blue-500"><span class="text-[9px] font-black uppercase tracking-widest text-blue-500 mb-1">Novos</span><span id="metric-sup-novos" class="text-xl font-black text-blue-400">0</span></div>
+            </div>
+          </div>
+          <div class="glass-card flex-1 overflow-hidden flex flex-col">
+            <div class="p-4 border-b border-white/5 bg-white/[0.02] flex items-center justify-between flex-shrink-0">
+              <select id="filter-sup-status" class="bg-transparent border-none text-xs font-bold text-gray-300 uppercase tracking-wider cursor-pointer outline-none" onchange="renderLeadsTable()">
+                <option value="Todos" class="bg-[#010816]">Todos os Status</option><option value="Novo Lead" class="bg-[#010816]">Novo Lead</option><option value="Em Análise" class="bg-[#010816]">Em Análise</option><option value="Aprovado" class="bg-[#010816]">Aprovados</option><option value="Recusado" class="bg-[#010816]">Recusados</option>
+              </select>
+            </div>
+            <div class="flex-1 overflow-auto custom-scrollbar">
+              <table class="w-full text-left border-collapse min-w-[800px]">
+                <thead class="bg-white/5 sticky top-0 z-10"><tr class="text-[9px] font-black uppercase tracking-[2px] text-gray-400"><th class="p-5 border-b border-white/10">Razão Social / CNPJ</th><th class="p-5 border-b border-white/10">Categoria</th><th class="p-5 border-b border-white/10">Data</th><th class="p-5 border-b border-white/10 text-center">Status</th><th class="p-5 border-b border-white/10 text-right">Ação</th></tr></thead>
+                <tbody id="leads-table-content" class="divide-y divide-white/5 text-sm text-gray-300"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div id="users-view" class="hidden-view">
+           <div class="space-y-6">
+             <div class="flex justify-between items-center mb-8">
+                <h2 class="text-2xl font-black uppercase flex items-center gap-3"><i data-lucide="users" class="text-blue-500"></i> Gestão de Acessos ao Hub</h2>
+             </div>
+             <div class="p-8 rounded-3xl bg-white/5 border border-white/10">
+                <h4 class="text-[10px] uppercase font-bold opacity-40 mb-6 tracking-widest text-white" id="user-form-title">Novo Usuário</h4>
+                <form id="hub-user-form" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                   <input type="hidden" id="hub-u-id">
+                   <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Nome</label><input type="text" id="hub-u-nome" required="" class="w-full p-3 rounded-xl text-sm"></div>
+                   <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">E-mail (Login)</label><input type="text" id="hub-u-email" required="" class="w-full p-3 rounded-xl text-sm"></div>
+                   <div><label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Senha</label><input type="password" id="hub-u-senha" required="" class="w-full p-3 rounded-xl text-sm"></div>
+                   <div>
+                      <label class="text-[9px] font-bold text-gray-500 block mb-2 uppercase">Módulos Permitidos</label>
+                      <div class="flex gap-4 items-center h-12">
+                         <label class="flex items-center gap-2 text-sm font-bold cursor-pointer hover:opacity-80 transition"><input type="checkbox" id="hub-chk-atividades" class="hub-check" onchange="window.toggleAtividadesFields()"> Atividades</label>
+                         <label class="flex items-center gap-2 text-sm font-bold cursor-pointer hover:opacity-80 transition"><input type="checkbox" id="hub-chk-suprimentos" class="hub-check"> Suprimentos</label>
+                         <label class="flex items-center gap-2 text-sm font-bold cursor-pointer hover:opacity-80 transition"><input type="checkbox" id="hub-chk-nps" class="hub-check" onchange="window.toggleNpsFields()"> NPS</label>
+                         <label class="flex items-center gap-2 text-sm font-bold cursor-pointer hover:opacity-80 transition"><input type="checkbox" id="hub-chk-admin" class="hub-check"> Admin</label>
+                      </div>
+                   </div>
+
+                   <div id="atividades-extra-fields" class="hidden-view col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/5 pt-4 mt-2">
+                       <div>
+                           <label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Setor de Atuação</label>
+                           <select id="hub-u-setor" class="w-full p-3 rounded-xl text-sm">
+                               <option value="Outros">Outros (Padrão)</option>
+                               <option value="Comercial">Comercial</option>
+                               <option value="Marketing">Marketing</option>
+                               <option value="Operacional">Operacional</option>
+                               <option value="Engenharia">Engenharia</option>
+                           </select>
+                       </div>
+                   </div>
+                   
+                   <div id="nps-extra-fields" class="hidden-view col-span-1 md:col-span-2 grid grid-cols-1 md:grid-cols-2 gap-6 border-t border-white/5 pt-4 mt-2">
+                       <div>
+                           <label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Nível de Acesso NPS</label>
+                           <select id="hub-nps-nivel" class="w-full p-3 rounded-xl text-sm" onchange="window.toggleNpsContracts()">
+                               <option value="ADM">Administrador</option>
+                               <option value="Cliente">Cliente</option>
+                           </select>
+                       </div>
+                       <div id="nps-visao-adm-container">
+                           <label class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Visão do ADM</label>
+                           <select id="hub-nps-visao-adm" class="w-full p-3 rounded-xl text-sm" onchange="window.toggleNpsContracts()">
+                               <option value="Geral">Geral (Vê Tudo)</option>
+                               <option value="Unidade">Por Unidade</option>
+                               <option value="Contrato">Por Contrato</option>
+                           </select>
+                       </div>
+                       <div id="nps-filtro-container" class="hidden-view md:col-span-2">
+                           <label id="nps-filtro-label" class="text-[9px] font-bold text-gray-500 block mb-1 uppercase">Filtros (Separados por vírgula)</label>
+                           <input type="text" id="hub-nps-filtro" class="w-full p-3 rounded-xl text-sm">
+                       </div>
+                   </div>
+
+                   <div class="md:col-span-2 pt-4 border-t border-white/5 flex gap-4">
+                      <button type="submit" class="px-8 py-3 bg-blue-600 hover:bg-blue-700 rounded-xl font-bold uppercase text-xs tracking-widest transition-all">Salvar Usuário</button>
+                      <button type="button" onclick="window.clearUserForm()" class="px-8 py-3 bg-white/5 hover:bg-white/10 rounded-xl font-bold uppercase text-xs tracking-widest transition-all text-gray-400">Cancelar</button>
+                   </div>
+                </form>
+             </div>
+             <div class="bg-white/5 border border-white/10 rounded-3xl overflow-hidden mt-6">
+                <table class="w-full text-left text-xs">
+                   <thead class="bg-white/5 font-bold uppercase tracking-widest text-gray-400"><tr><th class="p-5">Usuário</th><th class="p-5">Setor</th><th class="p-5">Permissões</th><th class="p-5 text-right">Ações</th></tr></thead>
+                   <tbody id="hub-users-table" class="divide-y divide-white/5 text-white"></tbody>
+                </table>
+             </div>
+           </div>
+        </div>
+
+        <div id="nps-view" class="hidden-view">
+           <div id="nps-root"></div>
+        </div>
+
+      </main>
+    </div>
+  </div>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getFirestore, collection, addDoc, onSnapshot, query, deleteDoc, doc, updateDoc, where, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+    import { getAuth, signInWithPopup, GoogleAuthProvider, signOut, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    
+    window.expandSidebar = () => {
+    const s = document.getElementById('desktop-sidebar');
+    const texts = document.querySelectorAll('.sidebar-text');
+    const icon = document.getElementById('sidebar-toggle-icon');
+
+    if (s.classList.contains('w-[84px]')) {
+        s.classList.replace('w-[84px]', 'w-64');
+        s.classList.replace('px-3', 'px-6');
+        setTimeout(() => {
+            texts.forEach(t => t.classList.remove('hidden-view'));
+        }, 150);
+        if (icon) icon.setAttribute('data-lucide', 'chevron-left');
+        if (window.lucide) lucide.createIcons();
+    }
+};
+
+window.collapseSidebar = () => {
+    const s = document.getElementById('desktop-sidebar');
+    const texts = document.querySelectorAll('.sidebar-text');
+    const icon = document.getElementById('sidebar-toggle-icon');
+
+    if (s.classList.contains('w-64')) {
+        s.classList.replace('w-64', 'w-[84px]');
+        s.classList.replace('px-6', 'px-3');
+        texts.forEach(t => t.classList.add('hidden-view'));
+        
+        // Fecha submenus abertos para manter o visual limpo
+        ['desktop-atividades', 'desktop-suprimentos'].forEach(menuId => {
+            const menu = document.getElementById(menuId);
+            const menuIcon = document.getElementById(`icon-${menuId}`);
+            if (menu) menu.classList.add('hidden');
+            if (menuIcon) if(menuIcon) menuIcon.style.transform = 'rotate(-90deg)';
+        });
+
+        if (icon) icon.setAttribute('data-lucide', 'chevron-right');
+        if (window.lucide) lucide.createIcons();
+    }
+};
+
+    const firebaseConfig = {
+      apiKey:"AIzaSyCGemp_OA8savCmLZfX7Us0nmDpdbpv4N0", authDomain:"mytasks-saturday.firebaseapp.com",
+      projectId:"mytasks-saturday", storageBucket:"mytasks-saturday.firebasestorage.app",
+      messagingSenderId:"647554172397", appId:"1:647554172397:web:aac3ef00938ee7cd8f13e4"
+    };
+    const appId = 'saturday-v22';
+    const app = initializeApp(firebaseConfig);
+    const db  = getFirestore(app);
+    const auth = getAuth(app);
+    const provider = new GoogleAuthProvider();
+
+    let globalTasks = [], globalLeads = [], globalHubUsers = [];
+
+    // ── Sistema de Perfil (Pessoal / Profissional) ─────────────────────────
+    const EMAIL_PESSOAL      = 'weversonf@gmail.com';
+    const EMAIL_PROFISSIONAL = 'weverson.nascimento@makroengenharia.com.br';
+    // Emails que têm acesso duplo (pessoal + profissional)
+    const EMAILS_DUPLO_ACESSO = [EMAIL_PESSOAL];
+
+    let activeProfile = 'profissional'; // padrão
+
+    function getLoggedEmail() {
+      try { return JSON.parse(localStorage.getItem('makro_user'))?.email || ''; } catch { return ''; }
+    }
+    function hasDuploAcesso() {
+      return EMAILS_DUPLO_ACESSO.includes(getLoggedEmail());
+    }
+    function getTasksVisiveis() {
+      if (!hasDuploAcesso()) {
+        // Usuários normais: veem tudo exceto tarefas marcadas como pessoal (que são exclusivas do master)
+        return globalTasks.filter(t => !t.profile || t.profile !== 'pessoal');
+      }
+      // Master com duplo acesso: filtra pelo perfil ativo
+      if (activeProfile === 'todos') return globalTasks;
+      return globalTasks.filter(t => (t.profile || 'profissional') === activeProfile);
+    }
+    let currentLeadId = null, editingTaskId = null;
+    let isAuthReady = false, currentChecklist = [], currentLabels = [];
+
+    const labelDefinitions = {
+      red:    { bg:'bg-red-500/20',    text:'text-red-400',    border:'border-red-500/30',    label:'Manutenção' },
+      blue:   { bg:'bg-blue-500/20',   text:'text-blue-400',   border:'border-blue-500/30',   label:'Operacional' },
+      yellow: { bg:'bg-yellow-500/20', text:'text-yellow-400', border:'border-yellow-500/30', label:'Comercial' },
+      emerald:{ bg:'bg-emerald-500/20',text:'text-emerald-400',border:'border-emerald-500/30',label:'Logística' },
+      purple: { bg:'bg-purple-500/20', text:'text-purple-400', border:'border-purple-500/30', label:'Engenharia' }
+    };
+
+    function showToast(msg, type='success') {
+      const t = document.createElement('div');
+      t.className = `p-4 rounded-xl bg-[#010816] border ${type==='error'?'border-red-500 text-red-400':'border-emerald-500 text-emerald-400'} animate-fadeup shadow-2xl text-[10px] font-black uppercase tracking-widest z-[200]`;
+      t.innerText = msg;
+      document.getElementById('toast-container').appendChild(t);
+      setTimeout(() => { t.style.opacity='0'; setTimeout(()=>t.remove(),300); }, 3000);
+    }
+
+    window.changeView = (view) => {
+      const views = ['dashboard','table','list','kanban','suprimentos','users','nps'];
+      views.forEach(v => {
+        const el = document.getElementById(`${v}-view`);
+        if (!el) return;
+        if (v === view) {
+          el.classList.remove('hidden-view');
+          if (v === 'suprimentos' || v === 'table') el.style.display = 'flex';
+          else el.style.display = 'block';
+        } else { el.classList.add('hidden-view'); el.style.display = ''; }
+      });
+      // Desktop sidebar active state
+      document.querySelectorAll('[class*="nav-item-"]').forEach(n => {
+        if (n.closest('#mobile-bottom-nav')) return;
+        n.className = n.className.replace(/bg-red-600\/10|text-red-500|hover:text-red-500/g,'').trim();
+        if (!n.className.includes('text-gray-500')) n.className += ' text-gray-500 hover:text-white';
+      });
+      document.querySelectorAll(`.nav-item-${view}`).forEach(n => {
+        if (n.closest('#mobile-bottom-nav')) return;
+        n.className = n.className.replace(/text-gray-500|hover:text-white/g,'').trim();
+        n.className += ' bg-red-600/10 text-red-500 hover:text-red-500';
+      });
+      // Mobile bottom nav active state
+      document.querySelectorAll('#mobile-bottom-nav .mob-tab').forEach(t => t.classList.remove('active'));
+      const mobileActive = document.querySelector(`#mobile-bottom-nav .nav-item-${view}`);
+      if (mobileActive) mobileActive.classList.add('active');
+      
+      const title = document.getElementById('header-title'), btn = document.getElementById('btn-header-add');
+      if (view==='suprimentos') { title.innerHTML=`<i data-lucide="package" class="inline w-4 h-4 mr-2 text-red-500"></i> Portal de Suprimentos`; btn.classList.add('hidden'); }
+      else if (view==='users')  { title.innerHTML=`<i data-lucide="users" class="inline w-4 h-4 mr-2 text-red-500"></i> Administração`;            btn.classList.add('hidden'); }
+      else if (view==='nps')    { title.innerHTML=`<i data-lucide="bar-chart-2" class="inline w-4 h-4 mr-2 text-red-500"></i> Quality & NPS`;      btn.classList.add('hidden'); }
+      else                      { title.innerHTML=`<i data-lucide="briefcase" class="inline w-4 h-4 mr-2 text-red-500"></i> Board Operacional`;     btn.classList.remove('hidden'); }
+      
+      if (view==='dashboard') renderMiniNPS();
+
+      if (window.lucide) lucide.createIcons();
+    };
+
+    function applyPermissions() {
+      try {
+        const userData = localStorage.getItem('makro_user');
+        if (!userData) return;
+        const user = JSON.parse(userData);
+        const perms = user.perms || [];
+        document.getElementById('user-display-name').innerText  = user.nome || 'Usuário';
+        document.getElementById('user-display-email').innerText = user.email || '';
+        
+        ['atividades','suprimentos','nps','admin'].forEach(m => {
+          const d = document.getElementById(`menu-group-${m}`);
+          if (perms.includes(m)) { d?.classList.remove('hidden-view'); }
+          else                   { d?.classList.add('hidden-view'); }
+        });
+        
+        let v = perms.includes('atividades') ? 'dashboard' : perms.includes('suprimentos') ? 'suprimentos' : perms.includes('nps') ? 'nps' : 'users';
+        window.changeView(v);
+      } catch (error) {
+        console.error("Erro no cache. Limpando sessão...", error);
+        localStorage.removeItem('makro_session');
+        localStorage.removeItem('makro_user');
+        window.location.reload();
+      }
+    }
+
+    function checkSession() {
+      const authView = document.getElementById('auth-view'), appView = document.getElementById('app-view'), loader = document.getElementById('global-loader');
+      try {
+        if (localStorage.getItem('makro_session') === 'active') {
+          authView.classList.add('hidden-view'); appView.classList.remove('hidden-view');
+          applyPermissions(); loadTasks(); loadLeads(); loadHubUsers();
+          loadUserKanbanCols().then(() => { updateTaskStatusSelect(); renderKanban(); });
+          initProfileUI();
+        } else { authView.classList.remove('hidden-view'); appView.classList.add('hidden-view'); }
+      } catch (error) {
+        console.error("Erro Crítico na Sessão:", error);
+      } finally {
+        if (!isAuthReady) { isAuthReady = true; loader.classList.add('opacity-0'); setTimeout(()=>loader.classList.add('hidden-view'),500); }
+        if (window.lucide) lucide.createIcons();
+      }
+    }
+
+    function normalizarEmailMakro(input) {
+      let email = input.trim().toLowerCase();
+      if (!email.includes('@')) email += '@makroengenharia.com.br';
+      if (email.endsWith('@makroengenharia.com')) email = email.replace('@makroengenharia.com', '@makroengenharia.com.br');
+      return email;
+    }
+
+    function isMasterUser(email) {
+      return (email === 'weversonf@gmail.com' || email === 'weverson@makroengenharia.com.br' || email === 'weverson.nascimento@makroengenharia.com.br');
+    }
+
+document.getElementById('auth-form').onsubmit = async (e) => {
+      e.preventDefault();
+      const rawEmail = document.getElementById('auth-email').value, pass = document.getElementById('auth-password').value;
+      const email = normalizarEmailMakro(rawEmail);
+      const btn = e.target.querySelector('button[type="submit"]'); 
+      btn.innerText = "Autenticando...";
+      
+      try {
+        // Autenticação anônima no Firebase para criar a sessão exigida pelo Firestore
+        await signInAnonymously(auth);
+
+        // Se for Master
+        if (isMasterUser(email) && pass === 'Wf023240') { 
+          localStorage.setItem('makro_session','active');
+          localStorage.setItem('makro_user', JSON.stringify({ email, nome:'Weverson Nascimento', perms:['atividades','suprimentos','nps','admin'] }));
+          document.getElementById('auth-view').classList.add('hidden-view'); // FECHA A TELA
+          checkSession(); return;
+        }
+        
+        // Consulta no Banco
+        const q = query(collection(db,'artifacts',appId,'hub_users'), where('email','==',email), where('password','==',pass));
+        const snap = await getDocs(q);
+        
+        if (!snap.empty) {
+          const u = snap.docs[0].data();
+          localStorage.setItem('makro_session','active');
+          localStorage.setItem('makro_user', JSON.stringify({ email, nome:u.nome, perms:u.permissions }));
+          document.getElementById('auth-view').classList.add('hidden-view'); // FECHA A TELA
+          checkSession();
+        } else { 
+            showToast("Credenciais inválidas.","error"); 
+            await signOut(auth);
+        }
+      } catch (err) { 
+        console.error(err); // Veja o erro real no F12
+        showToast("Erro no servidor. Verifique as regras do Firebase.","error"); 
+      }
+      btn.innerText = "Entrar no Hub";
+    };
+
+    document.getElementById('btn-google-login').onclick = async () => {
+      const btn = document.getElementById('btn-google-login'); const oldTxt = btn.innerHTML; btn.innerHTML = "Autenticando...";
+      try {
+        const result = await signInWithPopup(auth, provider);
+        const email = normalizarEmailMakro(result.user.email);
+        if (isMasterUser(email)) {
+          localStorage.setItem('makro_session','active');
+          localStorage.setItem('makro_user', JSON.stringify({ email, nome:result.user.displayName, perms:['atividades','suprimentos','nps','admin'], npsNivel:'ADM', npsVisaoAdm:'Geral', npsFiltro:'', setor: 'Marketing' }));
+          const qMaster = query(collection(db,'artifacts',appId,'hub_users'), where('email','==',email));
+          const snapMaster = await getDocs(qMaster);
+          if(snapMaster.empty) { await addDoc(collection(db,'artifacts',appId,'hub_users'), { nome: result.user.displayName, email: email, password: '', permissions: ['atividades','suprimentos','nps','admin'], setor: 'Marketing', npsNivel: 'ADM', npsVisaoAdm: 'Geral' }); }
+          showToast("Acesso Master liberado!"); checkSession();
+        } else {
+          const q = query(collection(db,'artifacts',appId,'hub_users'), where('email','==',email));
+          const snap = await getDocs(q);
+          if (!snap.empty) {
+            const u = snap.docs[0].data();
+            if (!u.permissions || u.permissions.length === 0) {
+              showToast("Seu cadastro está em análise pelo Administrador.", "error"); await signOut(auth);
+            } else {
+              localStorage.setItem('makro_session','active');
+              localStorage.setItem('makro_user', JSON.stringify({ email, nome: u.nome || result.user.displayName, perms:u.permissions, npsNivel:u.npsNivel||'ADM', npsVisaoAdm:u.npsVisaoAdm||'Geral', npsFiltro:u.npsFiltro||'', setor: u.setor||'Outros' }));
+              showToast(`Bem-vindo(a), ${u.nome || result.user.displayName}!`); checkSession();
+            }
+          } else { 
+            await addDoc(collection(db,'artifacts',appId,'hub_users'), { nome: result.user.displayName || email, email: email, password: '', permissions: [], setor: 'Outros' });
+            showToast("Cadastro enviado para aprovação do Administrador.", "error"); await signOut(auth); 
+          }
+        }
+      } catch (error) { console.error(error); showToast("Erro ao fazer login com Google.","error"); }
+      btn.innerHTML = oldTxt;
+    };
+
+    window.handleLogout = async () => { try { await signOut(auth); } catch (e) {} localStorage.clear(); location.reload(); };
+
+    window.setProfile = (p) => {
+      activeProfile = p;
+      document.querySelectorAll('.pf-btn').forEach(b => {
+        b.classList.remove('active-pf','bg-white/10','text-white');
+        b.classList.add('text-gray-500');
+      });
+      const active = document.getElementById(`pf-${p}`);
+      if (active) { active.classList.add('active-pf','bg-white/10','text-white'); active.classList.remove('text-gray-500'); }
+      renderDashboard(); renderTable(); renderList(); renderKanban();
+    };
+
+    function initProfileUI() {
+      const filterEl = document.getElementById('profile-filter');
+      const profileRow = document.getElementById('task-profile-row');
+      if (hasDuploAcesso()) {
+        filterEl?.classList.remove('hidden');
+        filterEl?.classList.add('flex');
+        profileRow?.classList.remove('hidden');
+        activeProfile = 'profissional';
+        window.setProfile('profissional');
+      } else {
+        filterEl?.classList.add('hidden');
+        filterEl?.classList.remove('flex');
+        profileRow?.classList.add('hidden');
+        activeProfile = 'profissional';
+      }
+    }
+
+    checkSession();
+
+    window.toggleDesktopSidebar = () => {
+      const s = document.getElementById('desktop-sidebar'), texts = document.querySelectorAll('.sidebar-text'), icon = document.getElementById('sidebar-toggle-icon');
+      if (s.classList.contains('w-64')) {
+        s.classList.replace('w-64','w-[84px]'); s.classList.remove('px-6'); s.classList.add('px-3');
+        texts.forEach(t=>t.classList.add('hidden-view')); icon.setAttribute('data-lucide','chevron-right');
+        ['desktop-atividades', 'desktop-suprimentos'].forEach(menuId => {
+            const menu = document.getElementById(menuId), menuIcon = document.getElementById(`icon-${menuId}`);
+            if (menu && !menu.classList.contains('hidden')) { menu.classList.add('hidden'); if (menuIcon) menuIcon.style.transform = 'rotate(-90deg)'; }
+        });
+      } else {
+        s.classList.replace('w-[84px]','w-64'); s.classList.remove('px-3'); s.classList.add('px-6');
+        setTimeout(()=>texts.forEach(t=>t.classList.remove('hidden-view')),150); icon.setAttribute('data-lucide','chevron-left');
+      }
+      if (window.lucide) lucide.createIcons();
+    };
+    
+    window.toggleSubMenu = (menuId) => {
+      const sidebar = document.getElementById('desktop-sidebar');
+      if (sidebar?.classList.contains('w-[84px]') && menuId.includes('desktop')) window.toggleDesktopSidebar();
+      const menu = document.getElementById(menuId), icon = document.getElementById(`icon-${menuId}`);
+      if (!menu) return;
+      if (menu.classList.contains('hidden') || menu.classList.contains('hidden-view')) { menu.classList.remove('hidden','hidden-view'); if(icon) icon.style.transform='rotate(0deg)'; }
+      else { menu.classList.add('hidden'); if(icon) icon.style.transform='rotate(-90deg)'; }
+    };
+    
+    window.openSettingsModal = () => { document.getElementById('settings-modal').classList.remove('hidden-view'); if(window.lucide) lucide.createIcons(); };
+    window.closeSettingsModal = () => document.getElementById('settings-modal').classList.add('hidden-view');
+
+    window.toggleNpsFields = () => {
+        const chk = document.getElementById('hub-chk-nps').checked;
+        const extra = document.getElementById('nps-extra-fields');
+        if (chk) extra.classList.remove('hidden-view');
+        else extra.classList.add('hidden-view');
+        window.toggleNpsContracts();
+    };
+
+    window.toggleNpsContracts = () => {
+        const nivel = document.getElementById('hub-nps-nivel').value;
+        const visaoAdm = document.getElementById('nps-visao-adm-container');
+        const visaoAdmVal = document.getElementById('hub-nps-visao-adm').value;
+        const filtro = document.getElementById('nps-filtro-container');
+        const label = document.getElementById('nps-filtro-label');
+        const input = document.getElementById('hub-nps-filtro');
+
+        if (nivel === 'Cliente') {
+            visaoAdm.classList.add('hidden-view');
+            filtro.classList.remove('hidden-view');
+            label.innerText = "Números dos Contratos (Separados por vírgula)";
+            input.placeholder = "Ex: 46000123, 46000124";
+        } else {
+            visaoAdm.classList.remove('hidden-view');
+            if (visaoAdmVal === 'Geral') {
+                filtro.classList.add('hidden-view');
+            } else if (visaoAdmVal === 'Unidade') {
+                filtro.classList.remove('hidden-view');
+                label.innerText = "Unidades (Separadas por vírgula)";
+                input.placeholder = "Ex: CE, MA, PA";
+            } else if (visaoAdmVal === 'Contrato') {
+                filtro.classList.remove('hidden-view');
+                label.innerText = "Nomes dos Contratos (Separados por vírgula)";
+                input.placeholder = "Ex: VALE, ALCOA, KINROSS";
+            }
+        }
+    };
+
+    window.toggleAtividadesFields = () => {
+        const chk = document.getElementById('hub-chk-atividades').checked;
+        const extra = document.getElementById('atividades-extra-fields');
+        if (chk) extra.classList.remove('hidden-view');
+        else extra.classList.add('hidden-view');
+    };
+
+    function loadHubUsers() { 
+      onSnapshot(collection(db,'artifacts',appId,'hub_users'), (snap) => { 
+        globalHubUsers=[]; snap.forEach(d=>globalHubUsers.push({id:d.id,...d.data()})); renderHubUsers(); 
+      }); 
+    }
+    
+    function renderHubUsers() {
+      const c = document.getElementById('hub-users-table');
+      if (!globalHubUsers.length) { c.innerHTML=`<tr><td colspan="4" class="p-8 text-center text-xs opacity-40 font-bold uppercase">Nenhum usuário cadastrado</td></tr>`; return; }
+      c.innerHTML = globalHubUsers.map(u => `<tr class="hover:bg-white/5 border-b border-white/5"><td class="p-5 font-bold uppercase">${u.nome}</td><td class="p-5 opacity-60"><span class="text-[9px] px-2 py-1 bg-white/5 rounded-md font-black">${u.setor || 'Outros'}</span> <br/><span class="mt-1 block">${u.email}</span></td><td class="p-5"><div class="flex gap-2 flex-wrap">${(u.permissions||[]).map(p=>`<span class="px-2 py-1 bg-blue-500/10 text-blue-400 rounded text-[9px] font-black uppercase">${p}</span>`).join('')}</div></td><td class="p-5 text-right"><button onclick="window.editHubUser('${u.id}')" class="text-blue-400 p-2 hover:bg-white/10 rounded mr-2"><i data-lucide="pencil" class="w-4 h-4"></i></button><button onclick="window.deleteHubUser('${u.id}')" class="text-red-500 p-2 hover:bg-white/10 rounded"><i data-lucide="trash-2" class="w-4 h-4"></i></button></td></tr>`).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+    
+    document.getElementById('hub-user-form').onsubmit = async (e) => {
+      e.preventDefault(); 
+      const id = document.getElementById('hub-u-id').value;
+      const data = { nome:document.getElementById('hub-u-nome').value, email:document.getElementById('hub-u-email').value, password:document.getElementById('hub-u-senha').value, permissions:[] };
+      
+      if (document.getElementById('hub-chk-atividades').checked) {
+          data.permissions.push('atividades');
+          data.setor = document.getElementById('hub-u-setor').value;
+      } else {
+          data.setor = "Outros";
+      }
+
+      if (document.getElementById('hub-chk-suprimentos').checked) data.permissions.push('suprimentos');
+      
+      if (document.getElementById('hub-chk-nps').checked) {
+          data.permissions.push('nps');
+          data.npsNivel = document.getElementById('hub-nps-nivel').value;
+          if (data.npsNivel === 'Cliente') {
+              data.npsVisaoAdm = '';
+              data.npsFiltro = document.getElementById('hub-nps-filtro').value;
+          } else {
+              data.npsVisaoAdm = document.getElementById('hub-nps-visao-adm').value;
+              data.npsFiltro = data.npsVisaoAdm === 'Geral' ? '' : document.getElementById('hub-nps-filtro').value;
+          }
+      } else {
+          data.npsNivel = "";
+          data.npsVisaoAdm = "";
+          data.npsFiltro = "";
+      }
+
+      if (document.getElementById('hub-chk-admin').checked) {
+          data.permissions.push('admin');
+      }
+      
+      try { 
+        if(id) { 
+            await updateDoc(doc(db,'artifacts',appId,'hub_users',id),data); showToast("Atualizado!"); 
+        } else { 
+            await addDoc(collection(db,'artifacts',appId,'hub_users'),data); showToast("Criado!"); 
+        } 
+        window.clearUserForm(); 
+      } catch (error) { 
+        console.error(error); 
+        showToast("Erro de permissão no Firebase.","error"); 
+      }
+    };
+    
+    window.editHubUser = (id) => { 
+      const u=globalHubUsers.find(x=>x.id===id); if(!u) return; 
+      document.getElementById('hub-u-id').value=u.id; 
+      document.getElementById('hub-u-nome').value=u.nome; 
+      document.getElementById('hub-u-email').value=u.email; 
+      document.getElementById('hub-u-senha').value=u.password; 
+      
+      const hasAtiv = (u.permissions||[]).includes('atividades');
+      document.getElementById('hub-chk-atividades').checked = hasAtiv;
+      if (hasAtiv) document.getElementById('hub-u-setor').value = u.setor || 'Outros';
+
+      document.getElementById('hub-chk-suprimentos').checked=(u.permissions||[]).includes('suprimentos'); 
+      
+      const hasNps = (u.permissions||[]).includes('nps');
+      document.getElementById('hub-chk-nps').checked = hasNps; 
+      if (hasNps) {
+          document.getElementById('hub-nps-nivel').value = u.npsNivel || 'ADM';
+          document.getElementById('hub-nps-visao-adm').value = u.npsVisaoAdm || 'Geral';
+          document.getElementById('hub-nps-filtro').value = u.npsFiltro || '';
+      } else {
+          document.getElementById('hub-nps-nivel').value = 'ADM';
+          document.getElementById('hub-nps-visao-adm').value = 'Geral';
+          document.getElementById('hub-nps-filtro').value = '';
+      }
+
+      document.getElementById('hub-chk-admin').checked=(u.permissions||[]).includes('admin'); 
+      
+      window.toggleAtividadesFields();
+      window.toggleNpsFields();
+      document.getElementById('user-form-title').innerText="Editando Usuário"; 
+    };
+    
+    window.clearUserForm = () => { 
+      document.getElementById('hub-user-form').reset(); 
+      document.getElementById('hub-u-id').value=''; 
+      document.getElementById('user-form-title').innerText="Novo Usuário"; 
+      
+      document.getElementById('hub-chk-atividades').checked = false;
+      document.getElementById('hub-u-setor').value = 'Outros';
+
+      document.getElementById('hub-chk-nps').checked = false;
+      document.getElementById('hub-nps-nivel').value = 'ADM';
+      document.getElementById('hub-nps-visao-adm').value = 'Geral';
+      document.getElementById('hub-nps-filtro').value = '';
+
+      document.getElementById('hub-chk-admin').checked = false;
+      
+      window.toggleAtividadesFields();
+      window.toggleNpsFields();
+    };
+
+    window.deleteHubUser = async (id) => { if(confirm("Excluir?")) await deleteDoc(doc(db,'artifacts',appId,'hub_users',id)); };
+
+    window.addEventListener('npsDataLoaded', renderMiniNPS);
+
+    function renderMiniNPS() {
+        const user = JSON.parse(localStorage.getItem('makro_user'));
+        if (!user) return;
+        
+        const widget = document.getElementById('mini-nps-widget');
+        
+        if (user.setor !== 'Comercial' && user.setor !== 'Marketing') {
+            widget.classList.add('hidden-view');
+            return;
+        }
+        
+        widget.classList.remove('hidden-view');
+        const content = document.getElementById('mini-nps-content');
+        
+        if (!window.makroNpsData || !window.makroNpsLastMonth) {
+            content.innerHTML = '<p class="text-xs text-gray-400">Dados do NPS indisponíveis no momento.</p>';
+            return;
+        }
+
+        const currentMonth = window.makroNpsLastMonth;
+        const currentData = window.makroNpsData.filter(d => d.mes === currentMonth);
+        
+        if (currentData.length === 0) {
+            content.innerHTML = `<p class="text-xs text-gray-400">Sem avaliações para ${currentMonth}.</p>`;
+            return;
+        }
+
+        const total = currentData.length;
+        const p = currentData.filter(x => x.nota >= 9).length;
+        const det = currentData.filter(x => x.nota <= 6).length;
+        const neutros = total - p - det;
+        const nps = Math.round(((p - det) / total) * 100);
+
+        let color = '#EF4136'; 
+        let zone = 'Crítico';
+        if (nps >= 75) { color = '#00A650'; zone = 'Excelência'; }
+        else if (nps >= 50) { color = '#56C174'; zone = 'Qualidade'; }
+        else if (nps >= 0) { color = '#FDB913'; zone = 'Aperfeiçoamento'; }
+
+        const pw = total > 0 ? ((p / total) * 100).toFixed(1) : 0;
+        const nw = total > 0 ? ((neutros / total) * 100).toFixed(1) : 0;
+        const dw = total > 0 ? ((det / total) * 100).toFixed(1) : 0;
+
+        content.innerHTML = `
+            <div class="flex flex-col items-center border-r border-white/10 pr-10">
+                <span class="text-5xl font-black" style="color:${color}">${nps}</span>
+                <span class="text-[9px] font-black px-2 py-1 rounded-full border mt-2 uppercase tracking-widest" style="border-color:${color}50; color:${color}; background:${color}10">${zone}</span>
+                <span class="text-[10px] font-bold text-gray-500 mt-2 uppercase tracking-widest">${currentMonth}</span>
+            </div>
+            <div class="flex-1 w-full bg-white/5 border border-white/10 rounded-[24px] p-6">
+                <h4 class="text-[9px] font-black uppercase opacity-40 mb-3 tracking-widest">Distribuição do Mês (${total} avaliações)</h4>
+                <div class="flex h-5 rounded-full overflow-hidden gap-0.5">
+                    ${p > 0 ? `<div style="width:${pw}%; background:#00A650" class="transition-all duration-700 rounded-l-full" title="Promotores ${pw}%"></div>` : ''}
+                    ${neutros > 0 ? `<div style="width:${nw}%; background:#FDB913" class="transition-all duration-700" title="Neutros ${nw}%"></div>` : ''}
+                    ${det > 0 ? `<div style="width:${dw}%; background:#EF4136" class="transition-all duration-700 rounded-r-full" title="Detratores ${dw}%"></div>` : ''}
+                </div>
+                <div class="flex justify-between mt-3 text-[9px] font-black uppercase">
+                    <span style="color:#00A650">▲ ${pw}% Promotores</span>
+                    <span style="color:#FDB913">◆ ${nw}% Neutros</span>
+                    <span style="color:#EF4136">▼ ${dw}% Detratores</span>
+                </div>
+            </div>
+        `;
+    }
+
+    // 1. Helpers padronizados para o caminho do banco (Fim da confusão de rotas)
+    // ── Funções de Perfil ─────────────────────────────────────────────────
+
+    function getTaskPath() { 
+        return collection(db, 'artifacts', appId, 'global_tasks'); 
+    }
+    function getTaskDoc(id) { 
+        return doc(db, 'artifacts', appId, 'global_tasks', id); 
+    }
+
+    // 2. Funções de Modal e Checklist (Mantidas iguais)
+    window.closeTaskModal = () => document.getElementById('task-modal').classList.add('hidden-view');
+    window.openTaskModal = (id) => {
+      editingTaskId = id || null;
+      currentChecklist = [];
+      currentLabels = [];
+      document.getElementById('task-input').value = '';
+      document.getElementById('task-comment').value = '';
+      document.getElementById('task-requester').value = '';
+      document.getElementById('task-deadline').value = '';
+      document.getElementById('task-status').value = 'Pendente';
+      document.getElementById('task-urgency').value = '1';
+      document.getElementById('task-progress').value = '0';
+      document.getElementById('progress-val').innerText = '0%';
+      // Profile: pré-seleciona pelo filtro ativo (exceto "todos" -> default profissional)
+      const defProfile = (activeProfile === 'todos' || activeProfile === 'profissional') ? 'profissional' : activeProfile;
+      const profileSel = document.getElementById('task-profile');
+      if (profileSel) profileSel.value = defProfile;
+      document.getElementById('modal-title').innerText = id ? 'Editar Atividade' : 'Nova Atividade';
+      if (id) {
+        const t = globalTasks.find(x => x.id === id);
+        if (t) {
+          document.getElementById('task-input').value = t.text || '';
+          document.getElementById('task-comment').value = t.comment || '';
+          document.getElementById('task-requester').value = t.requester || '';
+          document.getElementById('task-deadline').value = t.deadline || '';
+          document.getElementById('task-status').value = t.status || 'Pendente';
+          document.getElementById('task-urgency').value = String(t.urgency || 1);
+          document.getElementById('task-progress').value = String(t.progress || 0);
+          document.getElementById('progress-val').innerText = (t.progress || 0) + '%';
+          if (profileSel) profileSel.value = t.profile || 'profissional';
+          currentChecklist = (t.checklist || []).map(i => ({...i}));
+          currentLabels = [...(t.labels || [])];
+        }
+      }
+      renderChecklist();
+      renderLabels();
+      updateTaskStatusSelect();
+      if (id) {
+        const t2 = globalTasks.find(x => x.id === id);
+        if (t2) document.getElementById('task-status').value = t2.status || getUserKanbanCols()[0]?.name || 'Pendente';
+      }
+      document.getElementById('task-modal').classList.remove('hidden-view');
+      if (window.lucide) lucide.createIcons();
+    };
+    window.addChecklistItem = (e) => { if(e) e.preventDefault(); const inp=document.getElementById('new-check-item'); if(!inp.value.trim()) return; currentChecklist.push({text:inp.value.trim(),done:false,id:Date.now().toString()}); inp.value=''; renderChecklist(); };
+    window.toggleCheck = (id) => { const i=currentChecklist.find(x=>x.id===id); if(i) i.done=!i.done; renderChecklist(); };
+    window.deleteCheck  = (id) => { currentChecklist=currentChecklist.filter(x=>x.id!==id); renderChecklist(); };
+    function renderChecklist() { const c=document.getElementById('checklist-items'),t=currentChecklist.length,d=currentChecklist.filter(i=>i.done).length,p=t===0?0:Math.round((d/t)*100); document.getElementById('checklist-progress-text').innerText=`${p}%`; document.getElementById('checklist-progress-bar').style.width=`${p}%`; document.getElementById('checklist-progress-bar').className=`h-2 rounded-full transition-all ${p===100?'bg-emerald-500':'bg-blue-500'}`; c.innerHTML=currentChecklist.map(i=>`<div class="flex items-center gap-3 p-2 bg-white/[0.02] rounded-lg border border-white/5 hover:bg-white/5 group"><input type="checkbox" ${i.done?'checked':''} class="hub-check" onchange="window.toggleCheck('${i.id}')" /><span class="flex-1 text-sm ${i.done?'line-through opacity-40':''}">${i.text}</span><button type="button" onclick="window.deleteCheck('${i.id}')" class="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500"><i data-lucide="trash" class="w-3.5 h-3.5"></i></button></div>`).join(''); if(window.lucide) lucide.createIcons(); }
+    window.addLabel    = (color) => { if(!color||currentLabels.includes(color)) return; currentLabels.push(color); document.getElementById('label-selector').value=''; renderLabels(); };
+    window.removeLabel = (color) => { currentLabels=currentLabels.filter(c=>c!==color); renderLabels(); };
+    function renderLabels() { document.getElementById('active-labels').innerHTML=currentLabels.map(c=>{const d=labelDefinitions[c];return `<span class="label-pill ${d.bg} ${d.text} border ${d.border} flex items-center gap-1 cursor-pointer hover:opacity-70" onclick="window.removeLabel('${c}')">${d.label} &times;</span>`;}).join(''); }
+    
+    // 3. Salvamento padronizado
+    window.saveTask = async () => { 
+      if(localStorage.getItem('makro_session')!=='active') return; 
+      const text=document.getElementById('task-input').value.trim(); if(!text) return showToast("Título obrigatório.","error"); 
+      const profileVal = hasDuploAcesso() ? (document.getElementById('task-profile')?.value || 'profissional') : 'profissional';
+      const data={text, requester:document.getElementById('task-requester').value.trim(), deadline:document.getElementById('task-deadline').value, status:document.getElementById('task-status').value, urgency:parseInt(document.getElementById('task-urgency').value), progress:parseInt(document.getElementById('task-progress').value), comment:document.getElementById('task-comment').value.trim(), checklist:currentChecklist, labels:currentLabels, profile:profileVal}; 
+      try { 
+        if(editingTaskId){
+            await updateDoc(getTaskDoc(editingTaskId), data);
+            showToast("Atualizada!");
+        }else{
+            const currentUser = JSON.parse(localStorage.getItem('makro_user'));
+            await addDoc(getTaskPath(), {...data, createdAt:Date.now(), ownerEmail: currentUser?.email || ''});
+            showToast("Lançada!");
+        } 
+        window.closeTaskModal(); 
+      } catch { showToast("Erro ao salvar.","error"); } 
+    };
+
+    // 4. Drag & Drop, Exclusão e Mudança de Status usando o Helper
+    window.allowDrop       = (e) => { e.preventDefault(); e.currentTarget.classList.add('drag-over'); };
+    window.dragLeave       = (e) => e.currentTarget.classList.remove('drag-over');
+    window.handleDragStart = (e,id) => { e.dataTransfer.setData('taskId',id); document.getElementById(`card-${id}`)?.classList.add('dragging'); };
+    window.handleDragEnd   = (id) => document.getElementById(`card-${id}`)?.classList.remove('dragging');
+    
+    window.handleDrop = async (e,newStatus) => { 
+        e.preventDefault(); e.currentTarget.classList.remove('drag-over'); 
+        const taskId=e.dataTransfer.getData('taskId'); if(!taskId) return;
+        const cols = getUserKanbanCols();
+        const isLast = newStatus === cols[cols.length-1]?.name;
+        try { await updateDoc(getTaskDoc(taskId), {status:newStatus, ...(isLast ? {progress:100} : {})}); } catch{} 
+    };
+
+    // ── Touch Drag & Drop para mobile ──────────────────────────────────────
+    let _touchDragId = null, _touchGhost = null, _touchTimer = null, _touchMoved = false, _touchStartX = 0, _touchStartY = 0;
+
+    window.handleTouchStart = (e, id) => {
+      _touchMoved = false;
+      _touchStartX = e.touches[0].clientX;
+      _touchStartY = e.touches[0].clientY;
+      // Long press de 350ms ativa o drag
+      _touchTimer = setTimeout(() => {
+        _touchDragId = id;
+        const card = document.getElementById(`card-${id}`);
+        if (!card) return;
+        // Vibração haptica se disponível
+        if (navigator.vibrate) navigator.vibrate(40);
+        // Cria ghost visual
+        const rect = card.getBoundingClientRect();
+        _touchGhost = card.cloneNode(true);
+        _touchGhost.id = 'touch-ghost';
+        _touchGhost.className += ' touch-drag-ghost';
+        _touchGhost.style.width = rect.width + 'px';
+        _touchGhost.style.left  = rect.left + 'px';
+        _touchGhost.style.top   = rect.top  + 'px';
+        document.body.appendChild(_touchGhost);
+        card.classList.add('card-touch-dragging');
+      }, 350);
+    };
+
+    window.handleTouchMove = (e) => {
+      const dx = Math.abs(e.touches[0].clientX - _touchStartX);
+      const dy = Math.abs(e.touches[0].clientY - _touchStartY);
+      if (dx > 8 || dy > 8) _touchMoved = true;
+      // Cancela long press se moveu antes de 350ms
+      if (_touchMoved && !_touchDragId) { clearTimeout(_touchTimer); _touchTimer = null; return; }
+      if (!_touchDragId || !_touchGhost) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      _touchGhost.style.left = (t.clientX - _touchGhost.offsetWidth / 2) + 'px';
+      _touchGhost.style.top  = (t.clientY - 30) + 'px';
+      // Highlight da coluna sob o dedo
+      document.querySelectorAll('[id^="kc_"]').forEach(col => col.classList.remove('drag-over'));
+      _touchGhost.style.display = 'none';
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      _touchGhost.style.display = '';
+      const col = el?.closest('[id^="kc_"]');
+      if (col) col.classList.add('drag-over');
+    };
+
+    window.handleTouchEnd = async (e, id) => {
+      clearTimeout(_touchTimer); _touchTimer = null;
+      // Remove ghost e highlight
+      if (_touchGhost) { _touchGhost.remove(); _touchGhost = null; }
+      document.getElementById(`card-${id}`)?.classList.remove('card-touch-dragging');
+      document.querySelectorAll('[id^="kc_"]').forEach(col => col.classList.remove('drag-over'));
+
+      if (!_touchDragId) return; // foi tap normal, não drag
+      const dragId = _touchDragId; _touchDragId = null;
+
+      const t = e.changedTouches[0];
+      // Descobre em qual coluna soltou
+      const el = document.elementFromPoint(t.clientX, t.clientY);
+      const colEl = el?.closest('[id^="kc_"]');
+      if (!colEl) return;
+      // Extrai o nome da coluna a partir do ondrop attribute
+      const onDrop = colEl.getAttribute('ondrop') || '';
+      const match = onDrop.match(/handleDrop\(event,'(.+?)'\)/);
+      if (!match) return;
+      const newStatus = match[1];
+      const cols = getUserKanbanCols();
+      const isLast = newStatus === cols[cols.length-1]?.name;
+      try { await updateDoc(getTaskDoc(dragId), {status:newStatus, ...(isLast ? {progress:100} : {})}); } catch(err) { console.error(err); }
+    };
+    
+    window.deleteTask   = async (id) => { if(confirm("Excluir?")) await deleteDoc(getTaskDoc(id)); };
+    
+    window.cycleStatus  = async (id,current) => { 
+        const f = getUserKanbanCols().map(c => c.name);
+        const next=f[(f.indexOf(current)+1)%f.length]; 
+        await updateDoc(getTaskDoc(id), {status:next, progress:next===f[f.length-1]?100:undefined}); 
+    };
+
+    function loadTasks() { 
+      // OBS: Neste momento ainda estamos baixando TODAS as tarefas.
+      // Me avise se o USER comum só deve ver as dele para eu te mandar a query filtrada aqui!
+      onSnapshot(query(getTaskPath()), (snap) => { 
+        globalTasks=[]; snap.forEach(d=>globalTasks.push({id:d.id,...d.data()})); 
+        globalTasks.sort((a,b)=>b.createdAt-a.createdAt); 
+        renderDashboard(); renderTable(); renderList(); renderKanban(); 
+        if(window.lucide) lucide.createIcons(); 
+      }); 
+    }
+
+    function renderDashboard() { const tasks=getTasksVisiveis(); const t=tasks.length,c=tasks.filter(x=>x.status==='Concluído').length; document.getElementById('dash-total').innerText=t; document.getElementById('dash-concluidas').innerText=c; document.getElementById('dash-andamento').innerText=tasks.filter(x=>x.status==='Em Andamento').length; document.getElementById('dash-atrasadas').innerText=tasks.filter(x=>isOverdue(x.deadline)&&x.status!=='Concluído').length; let p=t>0?Math.round(tasks.reduce((a,x)=>a+(x.progress||0),0)/t):0; document.getElementById('dash-progress-bar').style.width=p+'%'; document.getElementById('dash-progress-text').innerText=p+'%'; renderMiniNPS(); }
+    function renderTable() { const tasks=getTasksVisiveis(); const c=document.getElementById('task-table-content'); if(!tasks.length){c.innerHTML=`<tr><td colspan="7" class="p-10 text-center opacity-30 text-xs font-black uppercase tracking-widest">Sem registros</td></tr>`;return;} c.innerHTML=tasks.map(t=>{const z=getUrgencyLabel(t.urgency),od=isOverdue(t.deadline)&&t.status!=='Concluído';return `<tr class="hover:bg-white/5 border-b border-white/5"><td class="p-4 font-bold ${t.status==='Concluído'?'line-through opacity-50':'text-gray-100'}">${t.text}</td><td class="p-4 opacity-70">${t.requester||'N/A'}</td><td class="p-4 text-center"><span class="font-black text-gray-400">${t.progress||0}%</span></td><td class="p-4 text-center"><span class="text-[9px] font-black px-2 py-1 rounded-md border border-white/10 ${getStatusStyle(t.status)} uppercase">${t.status}</span></td><td class="p-4 text-center ${od?'text-red-500 font-bold':'opacity-70'}">${formatDate(t.deadline)}</td><td class="p-4 text-center"><span class="text-[9px] font-black px-2 py-1 rounded-md border ${z.cls} uppercase">${z.label}</span></td><td class="p-4 text-right whitespace-nowrap"><button onclick="window.openTaskModal('${t.id}')" class="text-blue-400 bg-blue-500/10 hover:bg-blue-500/20 rounded-lg p-2 mr-1"><i data-lucide="pencil" class="w-3.5 h-3.5"></i></button><button onclick="window.deleteTask('${t.id}')" class="text-red-500 bg-red-500/10 hover:bg-red-500/20 rounded-lg p-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></td></tr>`;}).join('');}
+    function renderList() { const tasks=getTasksVisiveis(); const c=document.getElementById('task-list-content'); if(!tasks.length){c.innerHTML=`<div class="p-20 text-center opacity-30 text-xs font-black uppercase tracking-[5px]">Sem registros</div>`;return;} c.innerHTML=tasks.map(t=>{const z=getUrgencyLabel(t.urgency),od=isOverdue(t.deadline)&&t.status!=='Concluído',checks=t.checklist||[],dc=checks.filter(c=>c.done).length,ch=checks.length>0?`<span class="flex items-center gap-1 text-[9px] font-bold ${dc===checks.length?'text-emerald-500':'text-gray-400'}"><i data-lucide="check-square" class="w-3 h-3"></i> ${dc}/${checks.length}</span>`:'',lb=(t.labels||[]).length>0?`<div class="flex flex-wrap gap-1 mb-2">${t.labels.map(l=>`<span class="w-6 h-1.5 rounded-full ${labelDefinitions[l]?.bg||'bg-gray-500'}"></span>`).join('')}</div>`:'';return `<div class="grid grid-cols-12 p-6 hover:bg-white/5 items-center"><div class="col-span-5 px-2">${lb}<p class="font-bold text-sm ${t.status==='Concluído'?'line-through opacity-30':'text-white'}">${t.text}</p><div class="w-full bg-white/10 rounded-full h-1 mt-2 mb-1"><div class="bg-red-600 h-1 rounded-full" style="width:${t.progress||0}%"></div></div><div class="flex items-center justify-between mt-1"><div class="flex items-center gap-3"><p class="text-[9px] font-bold opacity-40 uppercase"><span class="text-red-500">Por:</span> ${t.requester||'N/A'}</p>${ch}</div><p class="text-[9px] font-black text-gray-400">${t.progress||0}%</p></div></div><div class="col-span-2 px-2 text-center"><span class="text-[9px] font-black px-3 py-1 rounded-full border ${z.cls} uppercase">${z.label}</span></div><div class="col-span-2 px-2 text-center"><p class="text-[10px] font-black ${od?'text-red-500':'opacity-40'}">${formatDate(t.deadline)}</p></div><div class="col-span-2 px-2 text-center"><button onclick="window.cycleStatus('${t.id}','${t.status}')" class="text-[9px] font-black px-3 py-1 rounded-full border border-white/10 ${getStatusStyle(t.status)} uppercase">${t.status}</button></div><div class="col-span-1 px-2 text-right flex justify-end gap-2"><button onclick="window.openTaskModal('${t.id}')" class="text-blue-400 bg-blue-500/10 p-2 rounded-lg"><i data-lucide="pencil" class="w-4 h-4"></i></button><button onclick="window.deleteTask('${t.id}')" class="text-red-500 bg-red-500/10 p-2 rounded-lg"><i data-lucide="trash-2" class="w-4 h-4"></i></button></div></div>`;}).join('');}
+    function renderKanban() {
+      const cols = getUserKanbanCols();
+      const firstCol = cols[0]?.name || 'Pendente';
+      const board = document.getElementById('kanban-board');
+      if (!board) return;
+      const allVisible = getTasksVisiveis();
+      const colColors = {
+        gray:    { border:'border-white/5',         bg:'bg-black/20',        text:'text-gray-300',    badge:'bg-white/10 text-gray-400',       dot:'bg-gray-400' },
+        blue:    { border:'border-blue-500/20',     bg:'bg-blue-500/5',      text:'text-blue-400',    badge:'bg-blue-500/20 text-blue-400',    dot:'bg-blue-400' },
+        emerald: { border:'border-emerald-500/20',  bg:'bg-emerald-500/5',   text:'text-emerald-400', badge:'bg-emerald-500/20 text-emerald-400', dot:'bg-emerald-400' },
+        yellow:  { border:'border-yellow-500/20',   bg:'bg-yellow-500/5',    text:'text-yellow-400',  badge:'bg-yellow-500/20 text-yellow-400', dot:'bg-yellow-400' },
+        red:     { border:'border-red-500/20',      bg:'bg-red-500/5',       text:'text-red-400',     badge:'bg-red-500/20 text-red-400',      dot:'bg-red-400' },
+        purple:  { border:'border-purple-500/20',   bg:'bg-purple-500/5',    text:'text-purple-400',  badge:'bg-purple-500/20 text-purple-400', dot:'bg-purple-400' },
+      };
+      board.innerHTML = cols.map(col => {
+        const c = colColors[col.color] || colColors.gray;
+        const domId = 'kc_' + col.name.replace(/\s+/g,'_');
+        const tasks = allVisible.filter(t => {
+          const s = t.status || 'Pendente';
+          if (s === col.name) return true;
+          // tarefas órfãs (status inexistente nas colunas do usuário) vão para primeira coluna
+          if (!cols.find(x => x.name === s) && col.name === firstCol) return true;
+          return false;
+        });
+        const cards = tasks.map(t => {
+          const checks=t.checklist||[],dc=checks.filter(c=>c.done).length;
+          const ch=checks.length>0?`<div class="flex items-center gap-1.5 text-[9px] font-bold ${dc===checks.length?'text-emerald-500 bg-emerald-500/10':'text-gray-400 bg-white/5'} px-2 py-0.5 rounded-md border border-white/5"><i data-lucide="check-square" class="w-3 h-3"></i> ${dc}/${checks.length}</div>`:'';
+          const lb=(t.labels||[]).length>0?`<div class="flex flex-wrap gap-1 mb-3">${t.labels.map(l=>`<span class="w-8 h-2 rounded-full ${labelDefinitions[l]?.bg||'bg-gray-500'}"></span>`).join('')}</div>`:'';
+          const isLastCol = col.name === cols[cols.length-1].name;
+          return `<div id="card-${t.id}" draggable="true" ondragstart="window.handleDragStart(event,'${t.id}')" ondragend="window.handleDragEnd('${t.id}')" ontouchstart="window.handleTouchStart(event,'${t.id}')" ontouchmove="window.handleTouchMove(event)" ontouchend="window.handleTouchEnd(event,'${t.id}')" onclick="if(!event.target.closest('button')) window.openTaskModal('${t.id}')" class="bg-[#010816] p-4 rounded-xl border border-white/10 hover:border-white/20 group cursor-pointer animate-fadeup shadow-lg select-none">${lb}<div class="flex justify-between items-start mb-2"><p class="text-xs font-bold ${isLastCol?'line-through opacity-50':'text-gray-100'}">${t.text}</p><button onclick="event.stopPropagation();window.deleteTask('${t.id}')" class="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500 p-1 ml-2"><i data-lucide="trash-2" class="w-3.5 h-3.5"></i></button></div><div class="w-full bg-white/10 rounded-full h-1 mt-2"><div class="bg-red-600 h-1 rounded-full" style="width:${t.progress||0}%"></div></div><div class="flex items-center justify-between pt-3 mt-3 border-t border-white/5"><div class="flex items-center gap-2">${ch}</div><div class="flex items-center gap-2 text-[9px] font-black ${isOverdue(t.deadline)&&!isLastCol?'text-red-500 bg-red-500/10 px-2 py-0.5 rounded':'text-gray-500'}">${t.deadline?`<i data-lucide="calendar" class="w-3 h-3"></i> ${formatDate(t.deadline)}`:''}</div></div></div>`;
+        }).join('');
+        return `<div class="w-72 md:w-80 flex-shrink-0 flex flex-col max-h-full bg-white/[0.02] rounded-2xl border border-white/5">
+          <div class="p-4 border-b ${c.border} flex justify-between items-center ${c.bg} rounded-t-2xl">
+            <div class="flex items-center gap-2"><span class="w-2 h-2 rounded-full ${c.dot}"></span><h3 class="font-black text-xs uppercase tracking-widest ${c.text}">${col.name}</h3></div>
+            <span class="text-[10px] font-black ${c.badge} px-2 py-0.5 rounded">${tasks.length}</span>
+          </div>
+          <div id="${domId}" ondragover="window.allowDrop(event)" ondragleave="window.dragLeave(event)" ondrop="window.handleDrop(event,'${col.name}')" class="p-3 space-y-3 overflow-y-auto flex-1 custom-scrollbar min-h-[150px]">${cards}</div>
+        </div>`;
+      }).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    // ── Colunas Kanban por usuário ─────────────────────────────────────────
+    const DEFAULT_KANBAN_COLS = [
+      { name:'Pendente',     color:'gray'    },
+      { name:'Em Andamento', color:'blue'    },
+      { name:'Concluído',    color:'emerald' },
+    ];
+
+    function getUserKanbanCols() {
+      try {
+        const raw = localStorage.getItem('makro_kanban_cols');
+        if (raw) return JSON.parse(raw);
+      } catch(e) {}
+      return DEFAULT_KANBAN_COLS.map(c => ({...c}));
+    }
+
+    function saveUserKanbanColsLocal(cols) {
+      localStorage.setItem('makro_kanban_cols', JSON.stringify(cols));
+    }
+
+    // Salva também no Firebase no perfil do usuário
+    async function saveUserKanbanColsRemote(cols) {
+      try {
+        const userData = JSON.parse(localStorage.getItem('makro_user') || '{}');
+        if (!userData.email) return;
+        const q = query(collection(db,'artifacts',appId,'hub_users'), where('email','==',userData.email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          await updateDoc(doc(db,'artifacts',appId,'hub_users',snap.docs[0].id), { kanban_cols: cols });
+        }
+      } catch(e) { console.error('Erro ao salvar colunas remotamente:', e); }
+    }
+
+    // Carrega colunas do Firebase ao fazer login e sincroniza localStorage
+    async function loadUserKanbanCols() {
+      try {
+        const userData = JSON.parse(localStorage.getItem('makro_user') || '{}');
+        if (!userData.email) return;
+        const q = query(collection(db,'artifacts',appId,'hub_users'), where('email','==',userData.email));
+        const snap = await getDocs(q);
+        if (!snap.empty) {
+          const remote = snap.docs[0].data().kanban_cols;
+          if (remote && remote.length > 0) {
+            saveUserKanbanColsLocal(remote);
+          }
+        }
+      } catch(e) {}
+    }
+
+    // ── Modal de edição de colunas ─────────────────────────────────────────
+    let editingCols = [];
+
+    window.openKanbanColModal = () => {
+      editingCols = getUserKanbanCols().map(c => ({...c}));
+      renderKanbanColList();
+      document.getElementById('kanban-col-modal').classList.remove('hidden-view');
+      if (window.lucide) lucide.createIcons();
+    };
+
+    window.closeKanbanColModal = () => {
+      document.getElementById('kanban-col-modal').classList.add('hidden-view');
+    };
+
+    function renderKanbanColList() {
+      const colorLabels = { gray:'Padrão', blue:'Azul', emerald:'Verde', yellow:'Amarelo', red:'Vermelho', purple:'Roxo' };
+      const colorDots   = { gray:'bg-gray-400', blue:'bg-blue-400', emerald:'bg-emerald-400', yellow:'bg-yellow-400', red:'bg-red-400', purple:'bg-purple-400' };
+      const list = document.getElementById('kanban-col-list');
+      if (!editingCols.length) {
+        list.innerHTML = `<p class="text-xs text-center opacity-30 font-bold uppercase">Nenhuma coluna. Adicione abaixo.</p>`;
+        return;
+      }
+      list.innerHTML = editingCols.map((col, i) => `
+        <div class="flex items-center gap-3 p-3 bg-white/[0.03] rounded-xl border border-white/5 group" draggable="true"
+             ondragstart="window._colDragIdx=${i}" ondragover="event.preventDefault()" ondrop="window.dropKanbanCol(event,${i})">
+          <div class="cursor-grab text-gray-600 hover:text-gray-400 flex-shrink-0"><i data-lucide="grip-vertical" class="w-4 h-4"></i></div>
+          <span class="w-3 h-3 rounded-full flex-shrink-0 ${colorDots[col.color]||'bg-gray-400'}"></span>
+          <input type="text" value="${col.name}" class="flex-1 bg-transparent border-none outline-none text-sm font-bold text-white p-0"
+                 oninput="editingCols[${i}].name=this.value">
+          <select class="bg-transparent border-none outline-none text-[10px] font-bold text-gray-400 cursor-pointer"
+                  onchange="editingCols[${i}].color=this.value;renderKanbanColList()">
+            ${['gray','blue','emerald','yellow','red','purple'].map(c=>`<option value="${c}" class="bg-[#010816]" ${col.color===c?'selected':''}>${colorLabels[c]}</option>`).join('')}
+          </select>
+          ${editingCols.length > 1 ? `<button onclick="editingCols.splice(${i},1);renderKanbanColList()" class="opacity-0 group-hover:opacity-100 text-gray-600 hover:text-red-500 transition-all flex-shrink-0"><i data-lucide="trash-2" class="w-4 h-4"></i></button>` : '<span class="w-4"></span>'}
+        </div>
+      `).join('');
+      if (window.lucide) lucide.createIcons();
+    }
+
+    window.dropKanbanCol = (e, toIdx) => {
+      e.preventDefault();
+      const fromIdx = window._colDragIdx;
+      if (fromIdx === undefined || fromIdx === toIdx) return;
+      const [moved] = editingCols.splice(fromIdx, 1);
+      editingCols.splice(toIdx, 0, moved);
+      window._colDragIdx = undefined;
+      renderKanbanColList();
+    };
+
+    window.addKanbanCol = () => {
+      const nameEl  = document.getElementById('kanban-col-new-name');
+      const colorEl = document.getElementById('kanban-col-new-color');
+      const name = nameEl.value.trim();
+      if (!name) { nameEl.focus(); return; }
+      if (editingCols.find(c => c.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Já existe uma coluna com esse nome.','error'); return;
+      }
+      editingCols.push({ name, color: colorEl.value });
+      nameEl.value = '';
+      colorEl.value = 'gray';
+      renderKanbanColList();
+    };
+
+    window.saveKanbanCols = async () => {
+      // Garante que os nomes digitados estão atualizados
+      document.querySelectorAll('#kanban-col-list input[type=text]').forEach((inp, i) => {
+        if (editingCols[i]) editingCols[i].name = inp.value.trim() || editingCols[i].name;
+      });
+      const valid = editingCols.filter(c => c.name.trim());
+      if (!valid.length) { showToast('Adicione ao menos uma coluna.','error'); return; }
+      saveUserKanbanColsLocal(valid);
+      await saveUserKanbanColsRemote(valid);
+      // Atualiza o select de status no modal de tarefa
+      updateTaskStatusSelect();
+      renderKanban();
+      window.closeKanbanColModal();
+      showToast('Layout salvo!');
+    };
+
+    // Atualiza o <select id="task-status"> dinamicamente com as colunas do usuário
+    function updateTaskStatusSelect() {
+      const sel = document.getElementById('task-status');
+      if (!sel) return;
+      const cols = getUserKanbanCols();
+      sel.innerHTML = cols.map(c => `<option value="${c.name}" class="bg-[#010816]">${c.name}</option>`).join('');
+    }
+
+    function loadLeads() { onSnapshot(query(collection(db,'artifacts',appId,'fornecedores_leads')), (snap) => { globalLeads=[]; snap.forEach(d=>globalLeads.push({id:d.id,...d.data()})); globalLeads.sort((a,b)=>b.createdAt-a.createdAt); document.getElementById('metric-sup-total').innerText=globalLeads.length; document.getElementById('metric-sup-novos').innerText=globalLeads.filter(l=>l.status==='Novo Lead').length; window.renderLeadsTable(); }); }
+    window.renderLeadsTable = () => { const c=document.getElementById('leads-table-content'),f=document.getElementById('filter-sup-status').value,fl=f==='Todos'?globalLeads:globalLeads.filter(l=>l.status===f); if(!fl.length){c.innerHTML=`<tr><td colspan="5" class="p-16 text-center opacity-30 text-xs font-black uppercase tracking-widest">Nenhum fornecedor</td></tr>`;return;} c.innerHTML=fl.map(l=>{let sc='';if(l.status==='Novo Lead')sc='status-novo';else if(l.status==='Em Análise')sc='status-analise';else if(l.status==='Aprovado')sc='status-aprovado';else if(l.status==='Recusado')sc='status-recusado';return `<tr class="hover:bg-white/5 border-b border-white/5 group cursor-pointer" onclick="window.openLeadModal('${l.id}')"><td class="p-5"><p class="font-bold text-white">${l.name}</p><p class="text-[10px] text-gray-500 mt-1 uppercase tracking-widest">${l.cnpj}</p></td><td class="p-5 opacity-80 font-bold text-xs">${l.category}</td><td class="p-5 opacity-60 text-xs">${new Date(l.createdAt).toLocaleDateString('pt-BR')}</td><td class="p-5 text-center"><span class="text-[9px] font-black px-3 py-1.5 rounded border uppercase tracking-widest ${sc}">${l.status||'Novo Lead'}</span></td><td class="p-5 text-right"><button class="text-blue-400 opacity-0 group-hover:opacity-100 text-[10px] font-bold uppercase tracking-widest flex items-center justify-end gap-1 w-full">Analisar <i data-lucide="chevron-right" class="w-3 h-3"></i></button></td></tr>`;}).join(''); if(window.lucide) lucide.createIcons(); };
+    window.openLeadModal  = (id) => { const l=globalLeads.find(x=>x.id===id); if(!l) return; currentLeadId=id; document.getElementById('modal-lead-name').innerText=l.name; document.getElementById('modal-lead-cnpj').innerText=l.cnpj; document.getElementById('modal-lead-category').innerText=l.category; document.getElementById('modal-lead-email').innerText=l.email; document.getElementById('modal-lead-phone').innerText=l.phone; document.getElementById('modal-lead-description').innerText=l.description; document.getElementById('modal-lead-status').value=l.status||'Novo Lead'; document.getElementById('modal-lead-notes').value=l.notes||''; document.getElementById('lead-modal').classList.remove('hidden-view'); if(window.lucide) lucide.createIcons(); };
+    window.closeLeadModal = () => { document.getElementById('lead-modal').classList.add('hidden-view'); currentLeadId=null; };
+    window.saveLeadStatus = async () => { if(!currentLeadId) return; try { await updateDoc(doc(db,'artifacts',appId,'fornecedores_leads',currentLeadId),{status:document.getElementById('modal-lead-status').value,notes:document.getElementById('modal-lead-notes').value}); showToast("Ficha atualizada!"); window.closeLeadModal(); } catch { showToast("Erro.","error"); } };
+    window.deleteLead     = async () => { if(!currentLeadId) return; if(confirm("Excluir?")) { try { await deleteDoc(doc(db,'artifacts',appId,'fornecedores_leads',currentLeadId)); showToast("Excluído.","error"); window.closeLeadModal(); } catch{} } };
+
+    function getStatusStyle(s) { if(s==='Concluído') return 'text-emerald-500 bg-emerald-500/10 border-emerald-500/20'; if(s==='Em Andamento') return 'text-blue-500 bg-blue-500/10 border-blue-500/20'; return 'text-gray-500 bg-white/5 border-white/5'; }
+    function getUrgencyLabel(l) { if(l===3) return {label:'CRÍTICO',  cls:'text-red-500 bg-red-500/10 border-red-500/30'}; if(l===2) return {label:'IMPORTANTE',cls:'text-yellow-500 bg-yellow-500/10 border-yellow-500/30'}; return {label:'NORMAL',cls:'text-blue-500 bg-blue-500/10 border-blue-500/30'}; }
+    function formatDate(ds) { if(!ds) return '--/--/--'; const [y,m,d]=ds.split('-'); return `${d}/${m}`; }
+    function isOverdue(ds) { if(!ds) return false; const t=new Date(); t.setHours(0,0,0,0); const d=new Date(ds); d.setHours(24,0,0,0); return d<t; }
+  </script>
+
   <script type="text/babel">
     const { useState, useEffect, useMemo, useRef, useCallback } = React;
     const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Cell, ReferenceLine, LabelList } = window.Recharts;
@@ -320,13 +1606,26 @@
                             baseDados = baseDados.filter(d => liberados.some(lib => String(d.numContrato).toLowerCase().includes(lib) || (d.cliente || '').toLowerCase().includes(lib)));
                             listaContratos = listaContratos.filter(c => liberados.some(lib => String(c.numero).toLowerCase().includes(lib) || (c.cliente || '').toLowerCase().includes(lib)));
                         }
+                    } else if (user.npsNivel === 'ADM') {
+                        const visaoAdm = user.npsVisaoAdm || 'Geral';
+                        const arrayFiltro = (user.npsFiltro || '').toLowerCase().split(',').map(s => s.trim()).filter(Boolean);
+                        if (visaoAdm === 'Unidade' && arrayFiltro.length > 0) {
+                            baseDados = baseDados.filter(d => arrayFiltro.some(f => (d.unidade || '').toLowerCase() === f || (d.unidade || '').toLowerCase().includes(f)));
+                        } else if (visaoAdm === 'Contrato' && arrayFiltro.length > 0) {
+                            baseDados = baseDados.filter(d => arrayFiltro.some(f => (d.contrato || '').toLowerCase().includes(f)));
+                        } else if ((visaoAdm === 'Unidade' || visaoAdm === 'Contrato') && arrayFiltro.length === 0) {
+                            baseDados = [];
+                        }
+                        if (visaoAdm !== 'Geral') {
+                            const allowedContracts = new Set(baseDados.map(d => d.contrato));
+                            listaContratos = listaContratos.filter(c => allowedContracts.has(c.exibicao));
+                        }
                     }
                     setRawData(baseDados);
                     setContractsList(listaContratos);
-                    setCompanies([...new Set(baseDados.map(d => d.empresa).filter(Boolean))]);
-                    setUnits([...new Set(baseDados.map(d => d.unidade).filter(Boolean))]);
-                    setClients([...new Set(baseDados.map(d => d.cliente).filter(Boolean))]);
-                    setContracts([...new Set(baseDados.map(d => d.contrato).filter(Boolean))]);
+                    const meses = baseDados.map(d => d.mes).filter(Boolean).filter(m => VALID_MONTH_REGEX.test(m));
+                    const sorted = sortMonthsChronologically([...new Set(meses)]);
+                    if (sorted.length) setSurveyData(prev => ({...prev, mesReferente: sorted[sorted.length-1]}));
                     setLoading(false);
                     window.dispatchEvent(new Event('npsDataLoaded'));
                     setView('dashboard');
@@ -483,7 +1782,7 @@
                             </table>
                         </div>
                         <div className="flex justify-between items-end mt-auto">
-                            <img src="https://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png" className="h-14 grayscale brightness-50 opacity-20"/>
+                            <img src="http://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png" className="h-14 grayscale brightness-50 opacity-20"/>
                             <button onClick={() => setView('dashboard')} className="fixed bottom-4 left-4 opacity-0 hover:opacity-100 p-2 bg-black text-white text-[10px] rounded">Sair TV</button>
                         </div>
                     </div>
@@ -774,4 +2073,110 @@
     const root = ReactDOM.createRoot(document.getElementById('nps-root'));
     root.render(<NPSApp/>);
   </script>
+  <!-- BOTTOM NAV MOBILE -->
+  <style>
+    #mobile-bottom-nav { display: none; }
+    @media (max-width: 1023px) { #mobile-bottom-nav { display: flex; } }
+
+    .mob-nav-bar {
+      background: #0d1117;
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: space-around;
+      padding: 0 8px;
+      height: 64px;
+      width: 100%;
+      box-shadow: 0 8px 40px rgba(0,0,0,0.6);
+    }
+
+    .mob-tab {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      padding: 0;
+      height: 100%;
+    }
+
+    .mob-tab-bubble {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.3s cubic-bezier(0.34,1.4,0.64,1);
+      background: transparent;
+    }
+
+    .mob-tab-bubble i { color: #555; transition: color 0.2s; }
+
+    .mob-tab-label {
+      font-size: 8px;
+      font-weight: 900;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: transparent;
+      line-height: 1;
+      transition: color 0.2s;
+    }
+
+    .mob-tab.active .mob-tab-bubble {
+      background: #e01d24;
+      transform: translateY(-14px);
+      box-shadow: 0 6px 20px rgba(224,29,36,0.5);
+      width: 48px;
+      height: 48px;
+    }
+    .mob-tab.active .mob-tab-bubble i { color: #fff; }
+    .mob-tab.active .mob-tab-label { color: #e01d24; }
+
+    .mob-tab-add .mob-tab-bubble {
+      background: #e01d24;
+      transform: translateY(-14px);
+      box-shadow: 0 6px 24px rgba(224,29,36,0.55);
+      width: 52px;
+      height: 52px;
+    }
+    .mob-tab-add .mob-tab-bubble i { color: #fff; }
+  </style>
+
+  <nav id="mobile-bottom-nav" class="fixed bottom-0 left-0 right-0 z-[90] flex items-end justify-center px-4" style="padding-bottom: max(14px, env(safe-area-inset-bottom));">
+    <div class="mob-nav-bar">
+
+      <button class="mob-tab nav-item-dashboard" onclick="changeView('dashboard')">
+        <div class="mob-tab-bubble"><i data-lucide="layout-dashboard" class="w-5 h-5"></i></div>
+        <span class="mob-tab-label">Painel</span>
+      </button>
+
+      <button class="mob-tab nav-item-kanban" onclick="changeView('kanban')">
+        <div class="mob-tab-bubble"><i data-lucide="kanban" class="w-5 h-5"></i></div>
+        <span class="mob-tab-label">Board</span>
+      </button>
+
+      <button class="mob-tab mob-tab-add" onclick="window.openTaskModal()">
+        <div class="mob-tab-bubble"><i data-lucide="plus" class="w-6 h-6"></i></div>
+      </button>
+
+      <button class="mob-tab nav-item-suprimentos" onclick="changeView('suprimentos')">
+        <div class="mob-tab-bubble"><i data-lucide="package" class="w-5 h-5"></i></div>
+        <span class="mob-tab-label">Compras</span>
+      </button>
+
+      <button class="mob-tab nav-item-nps" onclick="changeView('nps')">
+        <div class="mob-tab-bubble"><i data-lucide="bar-chart-2" class="w-5 h-5"></i></div>
+        <span class="mob-tab-label">NPS</span>
+      </button>
+
+    </div>
+  </nav>
+
 </body></html>
