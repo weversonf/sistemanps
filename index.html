@@ -385,8 +385,8 @@
 </div>
 
 <!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay">
-  <div class="modal" id="modalContent"></div>
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
 </div>
 
 <!-- TOAST -->
@@ -414,7 +414,7 @@ const auth = getAuth(app);
 let currentUser = null;
 
 /* ── UI HELPERS ── */
-function showToast(msg, type) {
+window.showToast=function(msg, type) {
   var t=document.getElementById('toast');
   if(!t) return;
   t.textContent=msg;
@@ -422,15 +422,15 @@ function showToast(msg, type) {
   t.className='toast show';
   clearTimeout(t._hide);
   t._hide=setTimeout(function(){t.className='toast'},3000);
-}
-function openModal(html) {
+};
+window.openModal=function(html) {
   document.getElementById('modalContent').innerHTML=html;
   document.getElementById('modalOverlay').classList.add('open');
-}
-function closeModal() {
+};
+window.closeModal=function() {
   document.getElementById('modalOverlay').classList.remove('open');
-}
-function showView(view) {
+};
+window.showView=function(view) {
   document.querySelectorAll('.view').forEach(function(v){v.classList.remove('active')});
   document.querySelectorAll('.nav-item').forEach(function(v){v.classList.remove('active')});
   var el=document.getElementById('view'+view.charAt(0).toUpperCase()+view.slice(1));
@@ -443,13 +443,13 @@ function showView(view) {
     view==='atividades'?'Atividades':'Usuários';
   if(view==='nps' && RAW_DATA.length) renderNps();
   if(view==='atividades') loadKanban();
-}
-function enterApp() {
+};
+window.enterApp=function() {
   document.getElementById('loginScreen').style.display='none';
   document.getElementById('app').style.display='flex';
   document.getElementById('userName').textContent=currentUser.nome||currentUser.email;
   showView('dashboard');
-}
+};
 
 /* ── LOGIN BYPASS (remover quando login for reativado) ── */
 currentUser={uid:'local',email:'local@admin',nome:'Admin',tipo:'admin'};
@@ -1079,10 +1079,6 @@ window.deleteUser = async function(id) {
   } catch(e) { showToast('Erro ao excluir', 'error'); }
 };
 
-/* ── ATIVAR VIEW LISTENER ── */
-document.querySelectorAll('.nav-item[data-view]').forEach(el => {
-  el.addEventListener('click', function() { showView(this.dataset.view); });
-});
 
 /* ── INIT ── */
 loadNpsData().then(() => { renderDashboard(); });
