@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Makro Gestão — NPS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+
+<div class="login-screen" id="loginScreen" style="display:none">
+  <div class="login-card">
+    <h1>Makro<span>Gestão</span></h1>
+    <p>Faça login para continuar</p>
+    <div class="login-error" id="loginError">Credenciais inválidas</div>
+    <label>Email</label>
+    <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+    <label>Senha</label>
+    <input type="password" id="loginPass" placeholder="••••••••" autocomplete="current-password">
+    <button class="btn btn-red" onclick="handleLogin()">Entrar</button>
+    <div style="text-align:center;margin-top:8px"><a href="#" onclick="handleForgotPassword();return false" style="font-size:11px;color:var(--muted)">Esqueci minha senha</a></div>
+    <div style="text-align:center;margin-top:12px"><a href="#" onclick="openRegister();return false" style="font-size:12px;color:var(--muted)">Primeiro acesso? Criar conta</a></div>
+  </div>
+</div>
+
+<div class="app" id="app">
+  <aside class="sidebar">
+    <div class="sidebar-logo"><i data-lucide="hexagon" style="width:20px;height:20px;color:var(--red)"></i>Makro<span>Gestão</span></div>
+    <nav class="sidebar-nav">
+      <a class="nav-item" data-href="dashboard.html" href="dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item active" data-href="nps.html" href="nps.html" aria-current="page"><i data-lucide="bar-chart-3"></i> Pesquisa NPS</a>
+      <a class="nav-item" data-href="atividades.html" href="atividades.html"><i data-lucide="columns-3"></i> Atividades</a>
+      <a class="nav-item" data-href="usuarios.html" href="usuarios.html"><i data-lucide="users"></i> Usuários</a>
+    </nav>
+    <div class="sidebar-user">
+      <strong id="userName">Admin</strong>
+      <div style="margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="handleLogout()">Sair</button></div>
+    </div>
+  </aside>
+
+  <div class="main">
+    <header class="header">
+      <div class="header-title">Pesquisa NPS</div>
+      <div class="header-actions">
+        <button class="btn btn-sm btn-ghost" onclick="handleLogout()" style="display:flex;align-items:center;gap:5px"><i data-lucide="log-out" style="width:14px;height:14px"></i> Sair</button>
+      </div>
+    </header>
+    <div class="content">
+      <div class="nps-header">
+        <div class="nps-period">
+          <button class="nps-period-btn" onclick="setPeriod('3m',this)">3M</button>
+          <button class="nps-period-btn active" onclick="setPeriod('ano26',this)">2026</button>
+          <button class="nps-period-btn" onclick="setPeriod('all',this)">Todos</button>
+        </div>
+      </div>
+      <div class="nps-filter-bar">
+        <span class="nps-filter-label">Filtros:</span>
+        <select class="nps-flt" id="f-mes" onchange="applyFilters()"><option value="Todos">Todos os Meses</option></select>
+        <select class="nps-flt" id="f-estrategico" onchange="applyFilters()"><option value="Todos">Todos</option><option>ArcelorMittal</option><option>Vale</option><option>Petroreconcavo</option><option>Wind</option><option>Outros</option></select>
+        <select class="nps-flt" id="f-unidade" onchange="applyFilters()"><option value="Todas">Todas as Unidades</option></select>
+        <select class="nps-flt" id="f-cliente" onchange="applyFilters()"><option value="Todos">Todos os Clientes</option></select>
+      </div>
+      <div class="nps-hero">
+        <div class="nps-score-hero">
+          <div><div class="nps-score-hero-label">Índice NPS</div><div class="nps-score-hero-val" id="heroScore">—</div><div class="nps-score-hero-zone" id="heroZone"></div></div>
+          <div class="nps-score-hero-delta" id="heroDelta"></div>
+        </div>
+        <div class="nps-kpi-card green"><div><div class="nps-kpi-label">Promotores</div><div class="nps-kpi-val green" id="kpiP">—</div><div class="nps-kpi-sub">notas 9 – 10</div></div><div class="nps-badge-up" id="kpiPBadge"></div></div>
+        <div class="nps-kpi-card yellow"><div><div class="nps-kpi-label">Neutros</div><div class="nps-kpi-val yellow" id="kpiN">—</div><div class="nps-kpi-sub">notas 7 – 8</div></div><div class="nps-badge-flat" id="kpiNBadge"></div></div>
+        <div class="nps-kpi-card red"><div><div class="nps-kpi-label">Detratores</div><div class="nps-kpi-val red" id="kpiD">—</div><div class="nps-kpi-sub">notas 0 – 6</div></div><div class="nps-badge-down" id="kpiDBadge"></div></div>
+      </div>
+      <div class="nps-section-grid nps-g3">
+        <div class="nps-card">
+          <div class="nps-card-title">Distribuição de Respostas</div>
+          <div class="nps-dist-bar" id="distBar"><div class="nps-dist-seg" id="dSegP" style="background:#00A650;border-radius:6px 0 0 6px"></div><div class="nps-dist-seg" id="dSegN" style="background:#FDB913"></div><div class="nps-dist-seg" id="dSegD" style="background:#EF4136;border-radius:0 6px 6px 0"></div></div>
+          <div class="nps-dist-legend">
+            <div><div class="nps-dist-item-label">Promotores</div><div class="nps-dist-item-val" id="dValP" style="color:#00A650">—</div><div class="nps-dist-item-pct" id="dPctP">—%</div></div>
+            <div><div class="nps-dist-item-label">Neutros</div><div class="nps-dist-item-val" id="dValN" style="color:#FDB913">—</div><div class="nps-dist-item-pct" id="dPctN">—%</div></div>
+            <div><div class="nps-dist-item-label">Detratores</div><div class="nps-dist-item-val" id="dValD" style="color:#EF4136">—</div><div class="nps-dist-item-pct" id="dPctD">—%</div></div>
+          </div>
+          <div style="margin-top:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.3;margin-bottom:10px">Total de Respostas</div>
+          <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,.6)" id="dTotal">—</div>
+        </div>
+        <div class="nps-card nps-gauge-wrap">
+          <div class="nps-card-title" style="width:100%;text-align:center">Posicionamento NPS</div>
+          <svg class="nps-gauge-svg" viewBox="0 0 280 160"><path d="M30,140 A110,110 0 0,1 85,50" fill="none" stroke="rgba(239,65,54,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M85,50 A110,110 0 0,1 140,30" fill="none" stroke="rgba(253,185,19,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M140,30 A110,110 0 0,1 195,50" fill="none" stroke="rgba(86,193,116,.2)" stroke-width="20" stroke-linecap="butt"/><path d="M195,50 A110,110 0 0,1 250,140" fill="none" stroke="rgba(0,166,80,.2)" stroke-width="20" stroke-linecap="butt"/><text x="18" y="88" fill="#EF4136" font-size="8" font-family="Inter" font-weight="700" text-anchor="middle" opacity=".7">Crítico</text><text x="82" y="38" fill="#FDB913" font-size="8" font-family="Inter" font-weight="700" text-anchor="middle" opacity=".7">Atenção</text><text x="200" y="38" fill="#56C174" font-size="8" font-family="Inter" font-weight="700" text-anchor="middle" opacity=".7">Qualidade</text><text x="264" y="88" fill="#00A650" font-size="8" font-family="Inter" font-weight="700" text-anchor="middle" opacity=".7">Excl.</text><g id="gaugeNeedle" style="transform-origin:140px 140px;transform:rotate(-90deg);transition:transform 1.2s cubic-bezier(.4,0,.2,1)"><line x1="140" y1="140" x2="140" y2="42" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round"/><circle cx="140" cy="140" r="7" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/><circle cx="140" cy="140" r="3" fill="#fff"/></g><text x="140" y="124" fill="#fff" font-size="28" font-family="Inter" font-weight="700" text-anchor="middle" id="gaugeScore">—</text><text x="140" y="142" fill="rgba(255,255,255,.3)" font-size="9" font-family="Inter" text-anchor="middle">NPS Score</text></svg>
+        </div>
+        <div class="nps-card"><div class="nps-card-title">NPS por Unidade</div><div id="dimUnidade"></div></div>
+      </div>
+      <div class="nps-section-grid nps-g2">
+        <div class="nps-card">
+          <div class="nps-card-title">Evolução Mensal do NPS</div>
+          <svg class="nps-trend-svg" viewBox="0 0 560 180" id="trendSvg"><defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1"><stop offset="0%" stop-color="#ED1C24" stop-opacity=".25"/><stop offset="100%" stop-color="#ED1C24" stop-opacity="0"/></linearGradient></defs></svg>
+        </div>
+        <div class="nps-card"><div class="nps-card-title">NPS por Cliente</div><div id="dimCliente" style="max-height:220px;overflow-y:auto"></div></div>
+      </div>
+      <div class="nps-card" style="margin-bottom:16px"><div class="nps-card-title">NPS Estratégico — Grandes Contas & Wind</div><div class="nps-strategic-grid" id="strategicBoard"></div></div>
+      <div class="nps-section-grid nps-g2">
+        <div class="nps-card"><div class="nps-card-title">Histórico por Mês</div><div id="monthlyHist"></div></div>
+        <div class="nps-card"><div class="nps-card-title">Comentários Recentes</div><div id="feedbacksList"></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="if(event.target===this)closeModal()">
+  <div class="modal" id="modalContent" onclick="event.stopPropagation()"></div>
+</div>
+<div class="toast" id="toast"></div>
+
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
+<script src="js/firebase-config.js"></script>
+<script src="js/app.js"></script>
+<script src="js/nps.js"></script>
+<script>
+/* ── BYPASS LOGIN ── */
+currentUser = {uid:'local',email:'local@admin',nome:'Admin',tipo:'admin'};
+document.getElementById('loginScreen').style.display='none';
+document.getElementById('app').style.display='flex';
+document.getElementById('userName').textContent='Admin';
+setActiveNav();
+
+/* ── INIT ── */
+if (!RAW_DATA.length) loadNpsData(); else { populateFilters(); renderNps(); }
+lucide.createIcons();
+</script>
+</body>
+</html>

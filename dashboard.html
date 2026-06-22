@@ -3,13 +3,14 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Makro Gestão</title>
+  <title>Makro Gestão — Dashboard</title>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
   <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-<div class="login-screen" id="loginScreen">
+<div class="login-screen" id="loginScreen" style="display:none">
   <div class="login-card">
     <h1>Makro<span>Gestão</span></h1>
     <p>Faça login para continuar</p>
@@ -24,29 +25,52 @@
   </div>
 </div>
 
-<div class="app" id="app" style="display:none">
+<div class="app" id="app">
   <aside class="sidebar">
     <div class="sidebar-logo"><i data-lucide="hexagon" style="width:20px;height:20px;color:var(--red)"></i>Makro<span>Gestão</span></div>
     <nav class="sidebar-nav">
-      <a class="nav-item" data-href="dashboard.html" href="dashboard.html"><i data-lucide="layout-dashboard"></i> Dashboard</a>
+      <a class="nav-item active" data-href="dashboard.html" href="dashboard.html" aria-current="page"><i data-lucide="layout-dashboard"></i> Dashboard</a>
       <a class="nav-item" data-href="nps.html" href="nps.html"><i data-lucide="bar-chart-3"></i> Pesquisa NPS</a>
       <a class="nav-item" data-href="atividades.html" href="atividades.html"><i data-lucide="columns-3"></i> Atividades</a>
       <a class="nav-item" data-href="usuarios.html" href="usuarios.html"><i data-lucide="users"></i> Usuários</a>
     </nav>
     <div class="sidebar-user">
-      <strong id="userName">—</strong>
+      <strong id="userName">Admin</strong>
       <div style="margin-top:8px"><button class="btn btn-ghost btn-xs" onclick="handleLogout()">Sair</button></div>
     </div>
   </aside>
+
   <div class="main">
     <header class="header">
-      <div class="header-title">Carregando...</div>
+      <div class="header-title">Dashboard</div>
       <div class="header-actions">
         <button class="btn btn-sm btn-ghost" onclick="handleLogout()" style="display:flex;align-items:center;gap:5px"><i data-lucide="log-out" style="width:14px;height:14px"></i> Sair</button>
       </div>
     </header>
-    <div class="content" style="display:flex;align-items:center;justify-content:center;min-height:400px">
-      <div class="loading">Redirecionando...</div>
+    <div class="content">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-title">Resumo NPS</div>
+          <div style="font-size:36px;font-weight:800" id="dashNpsScore">—</div>
+          <div style="font-size:12px;color:var(--muted);margin:4px 0 8px" id="dashNpsTotal">— respostas</div>
+          <div class="nps-dist-bar"><div class="nps-dist-seg" id="dashDistP" style="background:var(--green)"></div><div class="nps-dist-seg" id="dashDistN" style="background:var(--yellow)"></div><div class="nps-dist-seg" id="dashDistD" style="background:var(--red)"></div></div>
+          <div class="nps-legend">
+            <span><i style="background:var(--green)"></i><span id="dashPctP">0%</span></span>
+            <span><i style="background:var(--yellow)"></i><span id="dashPctN">0%</span></span>
+            <span><i style="background:var(--red)"></i><span id="dashPctD">0%</span></span>
+          </div>
+        </div>
+        <div class="card">
+          <div class="card-title">Atividades em Andamento</div>
+          <div style="font-size:36px;font-weight:800" id="dashAtvCount">—</div>
+          <div style="font-size:12px;color:var(--muted)" id="dashAtvLabel">tarefas abertas</div>
+          <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap" id="dashAtvByCol"></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="card-title">Últimas Pesquisas NPS</div>
+        <div id="dashNpsTable"><div class="loading">Carregando...</div></div>
+      </div>
     </div>
   </div>
 </div>
@@ -61,5 +85,19 @@
 <script src="https://www.gstatic.com/firebasejs/11.6.1/firebase-auth-compat.js"></script>
 <script src="js/firebase-config.js"></script>
 <script src="js/app.js"></script>
+<script src="js/nps.js"></script>
+<script src="js/dashboard.js"></script>
+<script>
+/* ── BYPASS LOGIN ── */
+currentUser = {uid:'local',email:'local@admin',nome:'Admin',tipo:'admin'};
+document.getElementById('loginScreen').style.display='none';
+document.getElementById('app').style.display='flex';
+document.getElementById('userName').textContent='Admin';
+setActiveNav();
+
+/* ── INIT ── */
+loadNpsData().then(function(){ renderDashboard(); });
+lucide.createIcons();
+</script>
 </body>
 </html>

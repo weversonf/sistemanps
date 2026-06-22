@@ -1,0 +1,828 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>NPS Dashboard · Makro</title>
+<link href="https://fonts.googleapis.com/css2?family=Ubuntu:wght@300;400;500;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --red:#ED1C24;
+  --bg:#010816;
+  --card:rgba(255,255,255,0.05);
+  --border:rgba(255,255,255,0.1);
+  --text:#f1f5f9;
+  --muted:rgba(255,255,255,0.4);
+  --green:#00A650;
+  --yellow:#FDB913;
+  --radius:24px;
+}
+
+body{font-family:'Ubuntu',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;overflow-x:hidden;}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:rgba(255,255,255,0.03);border-radius:10px}
+::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.15);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--red)}
+
+/* ── HEADER ── */
+header{
+  height:64px;background:rgba(1,8,22,0.8);backdrop-filter:blur(16px);
+  border-bottom:1px solid var(--border);
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 28px;position:sticky;top:0;z-index:100;
+}
+.logo{display:flex;align-items:center;gap:12px;}
+.logo img{height:28px;filter:brightness(0) invert(1);}
+.logo-sep{width:1px;height:22px;background:var(--border);}
+.logo-label{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.4;}
+.header-right{display:flex;align-items:center;gap:8px;}
+
+.period-group{display:flex;background:rgba(255,255,255,0.05);border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+.period-btn{
+  background:none;border:none;color:var(--muted);
+  padding:6px 14px;font-size:11px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;cursor:pointer;
+  font-family:'Ubuntu',sans-serif;transition:all .2s;
+}
+.period-btn:hover{color:var(--text);}
+.period-btn.active{background:var(--red);color:#fff;}
+
+.export-btn{
+  display:flex;align-items:center;gap:6px;
+  background:rgba(255,255,255,0.05);border:1px solid var(--border);
+  border-radius:10px;padding:6px 14px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1px;
+  color:var(--muted);cursor:pointer;font-family:'Ubuntu',sans-serif;transition:all .2s;
+}
+.export-btn:hover{color:var(--text);border-color:rgba(255,255,255,0.25);}
+
+/* ── FILTER BAR ── */
+.filter-bar{
+  display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  padding:14px 28px;border-bottom:1px solid var(--border);
+  background:rgba(255,255,255,0.01);
+}
+.filter-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.3;margin-right:4px;}
+select.flt{
+  background:rgba(255,255,255,0.05)!important;
+  border:1px solid var(--border)!important;
+  color:var(--text)!important;
+  border-radius:8px;padding:5px 10px;
+  font-size:11px;font-weight:500;font-family:'Ubuntu',sans-serif;
+  cursor:pointer;outline:none;
+}
+select.flt:focus{border-color:var(--red)!important;}
+select.flt option{background:#010816;}
+
+/* ── MAIN ── */
+main{padding:24px 28px;max-width:1400px;margin:0 auto;}
+
+/* ── HERO ROW ── */
+.hero-row{display:grid;grid-template-columns:260px 1fr 1fr 1fr;gap:16px;margin-bottom:16px;align-items:stretch;}
+
+.score-hero{
+  background:linear-gradient(135deg, #0d1f3c 0%, #011228 100%);
+  border:1px solid rgba(237,28,36,0.3);
+  border-radius:var(--radius);
+  padding:28px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.score-hero::before{
+  content:'';position:absolute;width:160px;height:160px;border-radius:50%;
+  background:radial-gradient(circle,rgba(237,28,36,.15) 0%,transparent 70%);
+  top:-40px;right:-40px;
+}
+.score-hero-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:2px;opacity:.4;margin-bottom:8px;}
+.score-hero-val{font-size:72px;font-weight:700;line-height:1;color:#fff;}
+.score-hero-zone{
+  display:inline-flex;align-items:center;gap:6px;
+  border-radius:20px;border:1px solid;
+  padding:4px 12px;font-size:10px;font-weight:700;
+  text-transform:uppercase;letter-spacing:1px;
+  width:fit-content;margin-top:6px;
+}
+.score-hero-delta{font-size:11px;opacity:.5;margin-top:16px;}
+.score-hero-delta strong{opacity:1;}
+
+.kpi-card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;
+}
+.kpi-card::after{
+  content:'';position:absolute;bottom:0;left:0;right:0;height:2px;
+}
+.kpi-card.green::after{background:var(--green);}
+.kpi-card.yellow::after{background:var(--yellow);}
+.kpi-card.red::after{background:#EF4136;}
+.kpi-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:12px;}
+.kpi-val{font-size:40px;font-weight:700;line-height:1;}
+.kpi-val.green{color:var(--green);}
+.kpi-val.yellow{color:var(--yellow);}
+.kpi-val.red{color:#EF4136;}
+.kpi-sub{font-size:10px;opacity:.35;margin-top:4px;}
+.kpi-badge{
+  display:inline-flex;align-items:center;gap:3px;
+  font-size:10px;font-weight:700;border-radius:6px;padding:3px 8px;
+  margin-top:14px;width:fit-content;
+}
+.badge-up{background:rgba(0,166,80,.15);color:var(--green);}
+.badge-down{background:rgba(239,65,54,.15);color:#EF4136;}
+.badge-flat{background:rgba(253,185,19,.15);color:var(--yellow);}
+
+/* ── SECTIONS ── */
+.section-grid{display:grid;gap:16px;margin-bottom:16px;}
+.g2{grid-template-columns:1fr 1fr;}
+.g3{grid-template-columns:1fr 1fr 1fr;}
+
+.card{
+  background:var(--card);border:1px solid var(--border);
+  border-radius:var(--radius);padding:24px;
+}
+.card-title{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.4;margin-bottom:18px;}
+
+/* ── DISTRIBUIÇÃO ── */
+.dist-bar{display:flex;height:12px;border-radius:6px;overflow:hidden;gap:2px;margin-bottom:16px;}
+.dist-seg{transition:width .8s ease;}
+.dist-legend{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;}
+.dist-item-label{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.4;margin-bottom:4px;}
+.dist-item-val{font-size:28px;font-weight:700;}
+.dist-item-pct{font-size:11px;opacity:.4;margin-top:2px;}
+
+/* ── GAUGE CHART ── */
+.gauge-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;}
+.gauge-svg{width:100%;max-width:280px;}
+
+/* ── TREND CHART ── */
+.trend-svg{width:100%;overflow:visible;}
+
+/* ── TABLE ── */
+.data-table{width:100%;border-collapse:collapse;}
+.data-table th{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;
+  color:rgba(255,255,255,.3);text-align:left;padding:0 10px 12px;
+  border-bottom:1px solid var(--border);
+}
+.data-table td{
+  padding:12px 10px;font-size:12px;border-bottom:1px solid rgba(255,255,255,.05);
+  vertical-align:middle;
+}
+.data-table tr:last-child td{border-bottom:none;}
+.data-table tr:hover td{background:rgba(255,255,255,.02);}
+
+.score-pill{
+  display:inline-flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:13px;min-width:38px;height:26px;
+  border-radius:8px;padding:0 8px;
+}
+
+/* ── NPS BY DIMENSION ── */
+.dim-item{margin-bottom:14px;}
+.dim-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;}
+.dim-name{font-size:12px;font-weight:500;opacity:.8;}
+.dim-score{font-size:14px;font-weight:700;}
+.dim-bar-bg{height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;}
+.dim-bar-fill{height:100%;border-radius:3px;transition:width .8s ease;}
+.dim-meta{font-size:9px;opacity:.3;font-weight:600;margin-top:3px;}
+
+/* ── FEEDBACKS ── */
+.feedback-item{
+  border:1px solid var(--border);border-radius:16px;
+  padding:14px 16px;margin-bottom:10px;position:relative;
+  background:rgba(255,255,255,.02);transition:border-color .2s;
+}
+.feedback-item:hover{border-color:rgba(255,255,255,.2);}
+.feedback-score{
+  position:absolute;top:12px;right:14px;
+  width:28px;height:28px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:12px;
+}
+.feedback-text{font-size:12px;line-height:1.55;opacity:.75;padding-right:40px;margin-bottom:8px;}
+.feedback-meta{font-size:10px;opacity:.35;display:flex;gap:10px;}
+.feedback-tag{
+  font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;
+  border-radius:4px;padding:2px 7px;
+}
+
+/* ── STRATEGIC BOARD ── */
+.strategic-grid{display:grid;grid-template-columns:repeat(6,1fr);gap:12px;}
+.strat-card{
+  background:rgba(1,8,22,.6);border:1px solid var(--border);
+  border-radius:20px;padding:16px;position:relative;overflow:hidden;
+}
+.strat-top-bar{position:absolute;top:0;left:0;right:0;height:3px;}
+.strat-name{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1px;opacity:.4;margin-bottom:10px;}
+.strat-score{font-size:36px;font-weight:700;}
+.strat-zone{font-size:8px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;border-radius:10px;padding:2px 8px;margin-top:6px;display:inline-block;}
+.strat-bottom{border-top:1px solid rgba(255,255,255,.05);padding-top:10px;margin-top:14px;display:flex;justify-content:space-between;font-size:9px;opacity:.4;font-weight:700;}
+
+/* Zona classes */
+.zona-excelencia{background:rgba(0,166,80,.15);color:#00A650;border-color:rgba(0,166,80,.3);}
+.zona-qualidade{background:rgba(86,193,116,.15);color:#56C174;border-color:rgba(86,193,116,.3);}
+.zona-aperfeicoamento{background:rgba(253,185,19,.15);color:#FDB913;border-color:rgba(253,185,19,.3);}
+.zona-critica{background:rgba(239,65,54,.15);color:#EF4136;border-color:rgba(239,65,54,.3);}
+
+/* ── MONTHLY HIST ── */
+.month-bar-item{display:grid;grid-template-columns:60px 1fr 44px;align-items:center;gap:10px;margin-bottom:10px;}
+.month-label{font-size:10px;font-weight:700;opacity:.4;text-align:right;}
+.month-bar-bg{height:20px;background:rgba(255,255,255,.05);border-radius:6px;overflow:hidden;position:relative;}
+.month-bar-fill{height:100%;border-radius:6px;transition:width 1s ease;display:flex;align-items:center;padding-left:8px;}
+.month-bar-fill span{font-size:9px;font-weight:700;color:rgba(255,255,255,.6);}
+.month-nps{font-size:13px;font-weight:700;text-align:right;}
+
+@media(max-width:900px){
+  .hero-row{grid-template-columns:1fr 1fr;}
+  .g2,.g3{grid-template-columns:1fr;}
+  .strategic-grid{grid-template-columns:repeat(3,1fr);}
+  main{padding:14px;}
+  .filter-bar{padding:10px 14px;}
+  header{padding:0 14px;}
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.au{animation:fadeUp .4s ease both;}
+</style>
+</head>
+<body>
+
+<!-- HEADER -->
+<header>
+  <div class="logo">
+    <img src="http://makroengenharia.com.br/wp-content/uploads/2023/03/logo-1.png" alt="Makro" onerror="this.style.display='none';document.querySelector('.logo-label-fallback').style.display='block'"/>
+    <span class="logo-label-fallback" style="display:none;font-size:18px;font-weight:700;color:#ED1C24">Makro</span>
+    <div class="logo-sep"></div>
+    <span class="logo-label">Quality & NPS</span>
+  </div>
+  <div class="header-right">
+    <div class="period-group">
+      <button class="period-btn" onclick="setPeriod('3m',this)">3M</button>
+      <button class="period-btn active" onclick="setPeriod('ano26',this)">2026</button>
+      <button class="period-btn" onclick="setPeriod('all',this)">Todos</button>
+    </div>
+    <button class="export-btn">
+      <svg width="12" height="12" viewBox="0 0 16 16" fill="none"><path d="M14 10v3H2v-3H0v3a2 2 0 002 2h12a2 2 0 002-2v-3h-2zM8 1L4 5h3v6h2V5h3L8 1z" fill="currentColor"/></svg>
+      Exportar CSV
+    </button>
+  </div>
+</header>
+
+<!-- FILTER BAR -->
+<div class="filter-bar">
+  <span class="filter-label">Filtros:</span>
+  <select class="flt" id="f-mes" onchange="applyFilters()">
+    <option value="Todos">Todos os Meses</option>
+  </select>
+  <select class="flt" id="f-estrategico" onchange="applyFilters()">
+    <option value="Todos">Todos</option>
+    <option>ArcelorMittal</option>
+    <option>Vale</option>
+    <option>Petroreconcavo</option>
+    <option>Wind</option>
+    <option>Outros</option>
+  </select>
+  <select class="flt" id="f-unidade" onchange="applyFilters()">
+    <option value="Todas">Todas as Unidades</option>
+  </select>
+  <select class="flt" id="f-cliente" onchange="applyFilters()">
+    <option value="Todos">Todos os Clientes</option>
+  </select>
+</div>
+
+<main>
+
+<!-- HERO ROW -->
+<div class="hero-row au">
+  <!-- Score principal -->
+  <div class="score-hero">
+    <div>
+      <div class="score-hero-label">Índice NPS</div>
+      <div class="score-hero-val" id="heroScore">—</div>
+      <div class="score-hero-zone" id="heroZone"></div>
+    </div>
+    <div class="score-hero-delta" id="heroDelta"></div>
+  </div>
+
+  <!-- KPIs -->
+  <div class="kpi-card green">
+    <div>
+      <div class="kpi-label">Promotores</div>
+      <div class="kpi-val green" id="kpiP">—</div>
+      <div class="kpi-sub">notas 9 – 10</div>
+    </div>
+    <div class="kpi-badge badge-up" id="kpiPBadge"></div>
+  </div>
+  <div class="kpi-card yellow">
+    <div>
+      <div class="kpi-label">Neutros</div>
+      <div class="kpi-val yellow" id="kpiN">—</div>
+      <div class="kpi-sub">notas 7 – 8</div>
+    </div>
+    <div class="kpi-badge badge-flat" id="kpiNBadge"></div>
+  </div>
+  <div class="kpi-card red">
+    <div>
+      <div class="kpi-label">Detratores</div>
+      <div class="kpi-val red" id="kpiD">—</div>
+      <div class="kpi-sub">notas 0 – 6</div>
+    </div>
+    <div class="kpi-badge badge-down" id="kpiDBadge"></div>
+  </div>
+</div>
+
+<!-- DISTRIBUIÇÃO + GAUGE + TREND -->
+<div class="section-grid g3 au" style="animation-delay:.05s">
+
+  <!-- Distribuição -->
+  <div class="card">
+    <div class="card-title">Distribuição de Respostas</div>
+    <div class="dist-bar" id="distBar">
+      <div class="dist-seg" id="dSegP" style="background:#00A650;border-radius:6px 0 0 6px;"></div>
+      <div class="dist-seg" id="dSegN" style="background:#FDB913;"></div>
+      <div class="dist-seg" id="dSegD" style="background:#EF4136;border-radius:0 6px 6px 0;"></div>
+    </div>
+    <div class="dist-legend">
+      <div>
+        <div class="dist-item-label">Promotores</div>
+        <div class="dist-item-val" id="dValP" style="color:#00A650">—</div>
+        <div class="dist-item-pct" id="dPctP">—%</div>
+      </div>
+      <div>
+        <div class="dist-item-label">Neutros</div>
+        <div class="dist-item-val" id="dValN" style="color:#FDB913">—</div>
+        <div class="dist-item-pct" id="dPctN">—%</div>
+      </div>
+      <div>
+        <div class="dist-item-label">Detratores</div>
+        <div class="dist-item-val" id="dValD" style="color:#EF4136">—</div>
+        <div class="dist-item-pct" id="dPctD">—%</div>
+      </div>
+    </div>
+    <div style="margin-top:20px;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:1.5px;opacity:.3;margin-bottom:10px;">Total de Respostas</div>
+    <div style="font-size:28px;font-weight:700;color:rgba(255,255,255,.6)" id="dTotal">—</div>
+  </div>
+
+  <!-- Gauge -->
+  <div class="card gauge-wrap">
+    <div class="card-title" style="width:100%;text-align:center;">Posicionamento NPS</div>
+    <svg class="gauge-svg" viewBox="0 0 280 160" xmlns="http://www.w3.org/2000/svg">
+      <!-- Zone arcs -->
+      <path d="M30,140 A110,110 0 0,1 85,50" fill="none" stroke="rgba(239,65,54,.2)"  stroke-width="20" stroke-linecap="butt"/>
+      <path d="M85,50  A110,110 0 0,1 140,30" fill="none" stroke="rgba(253,185,19,.2)" stroke-width="20" stroke-linecap="butt"/>
+      <path d="M140,30 A110,110 0 0,1 195,50" fill="none" stroke="rgba(86,193,116,.2)" stroke-width="20" stroke-linecap="butt"/>
+      <path d="M195,50 A110,110 0 0,1 250,140" fill="none" stroke="rgba(0,166,80,.2)"  stroke-width="20" stroke-linecap="butt"/>
+      <!-- Zone labels -->
+      <text x="18"  y="88" fill="#EF4136" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Crítico</text>
+      <text x="82"  y="38" fill="#FDB913" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Atenção</text>
+      <text x="200" y="38" fill="#56C174" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Qualidade</text>
+      <text x="264" y="88" fill="#00A650" font-size="8" font-family="Ubuntu" font-weight="700" text-anchor="middle" opacity=".7">Excl.</text>
+      <!-- Needle -->
+      <g id="gaugeNeedle" style="transform-origin:140px 140px;transform:rotate(-90deg);transition:transform 1.2s cubic-bezier(.4,0,.2,1)">
+        <line x1="140" y1="140" x2="140" y2="42" stroke="rgba(255,255,255,.9)" stroke-width="2.5" stroke-linecap="round"/>
+        <circle cx="140" cy="140" r="7" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.4)" stroke-width="1.5"/>
+        <circle cx="140" cy="140" r="3" fill="#fff"/>
+      </g>
+      <!-- Center score -->
+      <text x="140" y="124" fill="#fff" font-size="28" font-family="Ubuntu" font-weight="700" text-anchor="middle" id="gaugeScore">—</text>
+      <text x="140" y="142" fill="rgba(255,255,255,.3)" font-size="9" font-family="Ubuntu" text-anchor="middle">NPS Score</text>
+    </svg>
+  </div>
+
+  <!-- NPS por Unidade -->
+  <div class="card">
+    <div class="card-title">NPS por Unidade</div>
+    <div id="dimUnidade"></div>
+  </div>
+</div>
+
+<!-- TREND + NPS por Cliente -->
+<div class="section-grid g2 au" style="animation-delay:.1s">
+
+  <!-- Trend -->
+  <div class="card">
+    <div class="card-title">Evolução Mensal do NPS</div>
+    <svg class="trend-svg" viewBox="0 0 560 180" id="trendSvg" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ED1C24" stop-opacity=".25"/>
+          <stop offset="100%" stop-color="#ED1C24" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+    </svg>
+  </div>
+
+  <!-- NPS por Cliente -->
+  <div class="card">
+    <div class="card-title">NPS por Cliente</div>
+    <div id="dimCliente" style="max-height:220px;overflow-y:auto;"></div>
+  </div>
+</div>
+
+<!-- STRATEGIC BOARD -->
+<div class="card au" style="animation-delay:.15s;margin-bottom:16px;">
+  <div class="card-title">NPS Estratégico — Grandes Contas & Wind</div>
+  <div class="strategic-grid" id="strategicBoard"></div>
+</div>
+
+<!-- HISTÓRICO MENSAL + FEEDBACKS -->
+<div class="section-grid g2 au" style="animation-delay:.2s">
+
+  <!-- Histórico -->
+  <div class="card">
+    <div class="card-title">Histórico por Mês</div>
+    <div id="monthlyHist"></div>
+  </div>
+
+  <!-- Feedbacks -->
+  <div class="card">
+    <div class="card-title">Comentários Recentes</div>
+    <div id="feedbacksList"></div>
+  </div>
+</div>
+
+</main>
+
+<script>
+// ────────────────────────────────────────────────────────────────────────────
+// DADOS MOCK — estrutura idêntica ao sistema Makro (campos: mes, nota,
+// unidade, cliente, contrato, numContrato, classificacao, feedback, empresa)
+// ────────────────────────────────────────────────────────────────────────────
+const RAW_DATA = [
+  // Jan 26
+  {mes:'Jan 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Excelente atendimento, equipe muito qualificada.',empresa:'Makro'},
+  {mes:'Jan 26',nota:9, unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Serviço dentro do prazo e com qualidade.',empresa:'Makro'},
+  {mes:'Jan 26',nota:8, unidade:'Fortaleza',cliente:'Vale S.A.',contrato:'VL-CE-010',numContrato:'1010',classificacao:'Vale',feedback:'Bom serviço, mas houve atraso pontual.',empresa:'Makro'},
+  {mes:'Jan 26',nota:10,unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Parceria muito sólida.',empresa:'Makro'},
+  {mes:'Jan 26',nota:6, unidade:'Salvador',cliente:'Petroreconcavo',contrato:'PR-BA-020',numContrato:'1020',classificacao:'Petroreconcavo',feedback:'Comunicação precisa melhorar.',empresa:'Makro'},
+  {mes:'Jan 26',nota:9, unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Equipe muito comprometida.',empresa:'Makro'},
+  {mes:'Jan 26',nota:7, unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-030',numContrato:'1030',classificacao:'Wind',feedback:'Serviço satisfatório.',empresa:'Makro'},
+  {mes:'Jan 26',nota:10,unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-031',numContrato:'1031',classificacao:'Wind',feedback:'Superou nossas expectativas.',empresa:'Makro'},
+  {mes:'Jan 26',nota:5, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Tivemos problemas com o suporte.',empresa:'Makro'},
+  {mes:'Jan 26',nota:8, unidade:'Recife',cliente:'Braskem',contrato:'BK-PE-041',numContrato:'1041',classificacao:'Outros',feedback:'Bom trabalho no geral.',empresa:'Makro'},
+
+  // Fev 26
+  {mes:'Fev 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Continuam entregando com excelência.',empresa:'Makro'},
+  {mes:'Fev 26',nota:9, unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Satisfeito com o resultado.',empresa:'Makro'},
+  {mes:'Fev 26',nota:10,unidade:'Fortaleza',cliente:'Vale S.A.',contrato:'VL-CE-010',numContrato:'1010',classificacao:'Vale',feedback:'Melhoraram muito a comunicação.',empresa:'Makro'},
+  {mes:'Fev 26',nota:9, unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Equipe dedicada.',empresa:'Makro'},
+  {mes:'Fev 26',nota:7, unidade:'Salvador',cliente:'Petroreconcavo',contrato:'PR-BA-020',numContrato:'1020',classificacao:'Petroreconcavo',feedback:'Melhorou em relação ao mês anterior.',empresa:'Makro'},
+  {mes:'Fev 26',nota:10,unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Excelente mês.',empresa:'Makro'},
+  {mes:'Fev 26',nota:9, unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-030',numContrato:'1030',classificacao:'Wind',feedback:'Muito bom desempenho.',empresa:'Makro'},
+  {mes:'Fev 26',nota:8, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Melhoraram bastante.',empresa:'Makro'},
+  {mes:'Fev 26',nota:4, unidade:'Recife',cliente:'Braskem',contrato:'BK-PE-041',numContrato:'1041',classificacao:'Outros',feedback:'Problemas com documentação atrasaram o projeto.',empresa:'Makro'},
+  {mes:'Fev 26',nota:9, unidade:'Salvador',cliente:'Mosaic Fertilizantes',contrato:'MF-BA-050',numContrato:'1050',classificacao:'Outros',feedback:'Ótima parceria.',empresa:'Makro'},
+
+  // Mar 26
+  {mes:'Mar 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Referência em qualidade.',empresa:'Makro'},
+  {mes:'Mar 26',nota:10,unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Parceiro estratégico imprescindível.',empresa:'Makro'},
+  {mes:'Mar 26',nota:8, unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Trabalho sólido.',empresa:'Makro'},
+  {mes:'Mar 26',nota:9, unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-031',numContrato:'1031',classificacao:'Wind',feedback:'Entrega no prazo.',empresa:'Makro'},
+  {mes:'Mar 26',nota:6, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Ainda há gargalos no processo.',empresa:'Makro'},
+  {mes:'Mar 26',nota:10,unidade:'Salvador',cliente:'Mosaic Fertilizantes',contrato:'MF-BA-050',numContrato:'1050',classificacao:'Outros',feedback:'Excelente mês, recomendo fortemente!',empresa:'Makro'},
+  {mes:'Mar 26',nota:9, unidade:'Fortaleza',cliente:'Braskem',contrato:'BK-CE-042',numContrato:'1042',classificacao:'Outros',feedback:'Equipe muito ágil.',empresa:'Makro'},
+  {mes:'Mar 26',nota:7, unidade:'Recife',cliente:'Braskem',contrato:'BK-PE-041',numContrato:'1041',classificacao:'Outros',feedback:'Satisfatório.',empresa:'Makro'},
+  {mes:'Mar 26',nota:3, unidade:'Vitória',cliente:'Outros Cliente A',contrato:'OA-ES-060',numContrato:'1060',classificacao:'Outros',feedback:'Muitas falhas de comunicação interna.',empresa:'Makro'},
+  {mes:'Mar 26',nota:9, unidade:'Vitória',cliente:'Outros Cliente B',contrato:'OB-ES-061',numContrato:'1061',classificacao:'Outros',feedback:'Muito satisfeito.',empresa:'Makro'},
+
+  // Abr 26
+  {mes:'Abr 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Serviço impecável, sem ressalvas.',empresa:'Makro'},
+  {mes:'Abr 26',nota:9, unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-002',numContrato:'1002',classificacao:'ArcelorMittal',feedback:'Muito satisfeitos com a equipe.',empresa:'Makro'},
+  {mes:'Abr 26',nota:10,unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Parceria que gera resultados concretos.',empresa:'Makro'},
+  {mes:'Abr 26',nota:10,unidade:'Fortaleza',cliente:'Vale S.A.',contrato:'VL-CE-010',numContrato:'1010',classificacao:'Vale',feedback:'Superaram nossas expectativas.',empresa:'Makro'},
+  {mes:'Abr 26',nota:8, unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Boa execução técnica.',empresa:'Makro'},
+  {mes:'Abr 26',nota:9, unidade:'Salvador',cliente:'Petroreconcavo',contrato:'PR-BA-022',numContrato:'1022',classificacao:'Petroreconcavo',feedback:'Equipe comprometida.',empresa:'Makro'},
+  {mes:'Abr 26',nota:10,unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-030',numContrato:'1030',classificacao:'Wind',feedback:'Excelente resultado operacional.',empresa:'Makro'},
+  {mes:'Abr 26',nota:9, unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-031',numContrato:'1031',classificacao:'Wind',feedback:'Entrega pontual e com qualidade.',empresa:'Makro'},
+  {mes:'Abr 26',nota:5, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Esperamos melhorias no próximo mês.',empresa:'Makro'},
+  {mes:'Abr 26',nota:9, unidade:'Salvador',cliente:'Mosaic Fertilizantes',contrato:'MF-BA-050',numContrato:'1050',classificacao:'Outros',feedback:'Continuam entregando com qualidade.',empresa:'Makro'},
+  {mes:'Abr 26',nota:10,unidade:'Fortaleza',cliente:'Braskem',contrato:'BK-CE-042',numContrato:'1042',classificacao:'Outros',feedback:'Melhor parceiro que temos.',empresa:'Makro'},
+  {mes:'Abr 26',nota:8, unidade:'Vitória',cliente:'Outros Cliente B',contrato:'OB-ES-061',numContrato:'1061',classificacao:'Outros',feedback:'Bom trabalho.',empresa:'Makro'},
+
+  // Mai 26
+  {mes:'Mai 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Qualidade consistente mês a mês.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-002',numContrato:'1002',classificacao:'ArcelorMittal',feedback:'Equipe excepcional.',empresa:'Makro'},
+  {mes:'Mai 26',nota:9, unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Satisfeito com a evolução.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Fortaleza',cliente:'Vale S.A.',contrato:'VL-CE-010',numContrato:'1010',classificacao:'Vale',feedback:'Referência de parceiro.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Mês excelente, parabéns à equipe.',empresa:'Makro'},
+  {mes:'Mai 26',nota:9, unidade:'Salvador',cliente:'Petroreconcavo',contrato:'PR-BA-022',numContrato:'1022',classificacao:'Petroreconcavo',feedback:'Muito bom.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-030',numContrato:'1030',classificacao:'Wind',feedback:'Mantiveram o alto padrão.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-031',numContrato:'1031',classificacao:'Wind',feedback:'Orgulhosos da parceria.',empresa:'Makro'},
+  {mes:'Mai 26',nota:7, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Melhorou, mas ainda há ajustes.',empresa:'Makro'},
+  {mes:'Mai 26',nota:10,unidade:'Salvador',cliente:'Mosaic Fertilizantes',contrato:'MF-BA-050',numContrato:'1050',classificacao:'Outros',feedback:'Ótimo mês.',empresa:'Makro'},
+  {mes:'Mai 26',nota:8, unidade:'Fortaleza',cliente:'Braskem',contrato:'BK-CE-042',numContrato:'1042',classificacao:'Outros',feedback:'Serviço de qualidade.',empresa:'Makro'},
+  {mes:'Mai 26',nota:9, unidade:'Vitória',cliente:'Outros Cliente B',contrato:'OB-ES-061',numContrato:'1061',classificacao:'Outros',feedback:'Muito satisfeito.',empresa:'Makro'},
+
+  // Jun 26
+  {mes:'Jun 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-001',numContrato:'1001',classificacao:'ArcelorMittal',feedback:'Parceria impecável, indico sem hesitação.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Fortaleza',cliente:'ArcelorMittal Brasil',contrato:'AM-CE-002',numContrato:'1002',classificacao:'ArcelorMittal',feedback:'Excelência na execução.',empresa:'Makro'},
+  {mes:'Jun 26',nota:9, unidade:'Salvador',cliente:'Vale S.A.',contrato:'VL-BA-011',numContrato:'1011',classificacao:'Vale',feedback:'Equipe nota 10.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Fortaleza',cliente:'Vale S.A.',contrato:'VL-CE-010',numContrato:'1010',classificacao:'Vale',feedback:'Melhor resultado do ano.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Vitória',cliente:'Petroreconcavo',contrato:'PR-ES-021',numContrato:'1021',classificacao:'Petroreconcavo',feedback:'Compromisso e qualidade.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Salvador',cliente:'Petroreconcavo',contrato:'PR-BA-022',numContrato:'1022',classificacao:'Petroreconcavo',feedback:'Superaram as expectativas.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-030',numContrato:'1030',classificacao:'Wind',feedback:'Resultado fenomenal neste mês.',empresa:'Makro'},
+  {mes:'Jun 26',nota:9, unidade:'Wind',cliente:'Wind Energia',contrato:'WE-RN-031',numContrato:'1031',classificacao:'Wind',feedback:'Excelente trabalho.',empresa:'Makro'},
+  {mes:'Jun 26',nota:8, unidade:'Recife',cliente:'Companhia Siderúrgica',contrato:'CS-PE-040',numContrato:'1040',classificacao:'Outros',feedback:'Melhorou consideravelmente.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Salvador',cliente:'Mosaic Fertilizantes',contrato:'MF-BA-050',numContrato:'1050',classificacao:'Outros',feedback:'Satisfeito com o resultado do semestre.',empresa:'Makro'},
+  {mes:'Jun 26',nota:10,unidade:'Fortaleza',cliente:'Braskem',contrato:'BK-CE-042',numContrato:'1042',classificacao:'Outros',feedback:'Mês excepcional, parabéns à equipe Makro!',empresa:'Makro'},
+  {mes:'Jun 26',nota:5, unidade:'Recife',cliente:'Outros Cliente A',contrato:'OA-PE-062',numContrato:'1062',classificacao:'Outros',feedback:'Tivemos falhas no prazo de resposta.',empresa:'Makro'},
+];
+
+// ────────────────────────────────────────────────────────────────────────────
+const MONTH_ORDER = {Jan:1,Fev:2,Mar:3,Abr:4,Mai:5,Jun:6,Jul:7,Ago:8,Set:9,Out:10,Nov:11,Dez:12};
+
+function sortMonths(arr){
+  return [...arr].sort((a,b)=>{
+    const[mA,yA]=a.split(' '), [mB,yB]=b.split(' ');
+    const fy=s=>parseInt(s)>50?1900+parseInt(s):2000+parseInt(s);
+    return fy(yA)!==fy(yB)?fy(yA)-fy(yB):(MONTH_ORDER[mA]||0)-(MONTH_ORDER[mB]||0);
+  });
+}
+function calcNPS(rows){
+  const total=rows.length;
+  if(!total) return {total:0,p:0,det:0,n:0,nps:0};
+  const p=rows.filter(x=>x.nota>=9).length;
+  const det=rows.filter(x=>x.nota<=6).length;
+  return {total,p,det,n:total-p-det,nps:Math.round(((p-det)/total)*100)};
+}
+function npsColor(v){
+  if(v>=75) return '#00A650';
+  if(v>=50) return '#56C174';
+  if(v>=0)  return '#FDB913';
+  return '#EF4136';
+}
+function npsZone(v){
+  if(v>=75) return {label:'Excelência',cls:'zona-excelencia'};
+  if(v>=50) return {label:'Qualidade', cls:'zona-qualidade'};
+  if(v>=0)  return {label:'Aperfeiçoamento',cls:'zona-aperfeicoamento'};
+  return {label:'Crítico',cls:'zona-critica'};
+}
+function getCategory(d){
+  const s=(d.classificacao||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toUpperCase().trim();
+  if(s==='WIND') return 'Wind';
+  if(['PETRORECONCAVO','PETRO','POTIGUAR'].includes(s)) return 'Petroreconcavo';
+  if(s==='VALE') return 'Vale';
+  if(s==='ARCELORMITTAL') return 'ArcelorMittal';
+  return 'Outros';
+}
+
+// ── State ──
+let activePeriod = 'ano26';
+let filters = {mes:'Todos', estrategico:'Todos', unidade:'Todas', cliente:'Todos'};
+
+// Populate filters dropdowns
+function populateFilters(){
+  const allMonths = sortMonths([...new Set(RAW_DATA.map(d=>d.mes).filter(Boolean))]);
+  const fMes = document.getElementById('f-mes');
+  fMes.innerHTML = '<option value="Todos">Todos os Meses</option>';
+  allMonths.forEach(m=>{ const o=document.createElement('option'); o.value=m; o.textContent=m; fMes.appendChild(o); });
+
+  const allUnidades = [...new Set(RAW_DATA.map(d=>d.unidade).filter(Boolean))].sort();
+  const fUn = document.getElementById('f-unidade');
+  fUn.innerHTML = '<option value="Todas">Todas as Unidades</option>';
+  allUnidades.forEach(u=>{ const o=document.createElement('option'); o.value=u; o.textContent=u; fUn.appendChild(o); });
+
+  const allClientes = [...new Set(RAW_DATA.map(d=>d.cliente).filter(Boolean))].sort();
+  const fCl = document.getElementById('f-cliente');
+  fCl.innerHTML = '<option value="Todos">Todos os Clientes</option>';
+  allClientes.forEach(c=>{ const o=document.createElement('option'); o.value=c; o.textContent=c; fCl.appendChild(o); });
+}
+
+function getFilteredData(){
+  const ano26Months = sortMonths([...new Set(RAW_DATA.map(d=>d.mes).filter(Boolean))]).filter(m=>m.endsWith('26'));
+  return RAW_DATA.filter(d=>{
+    // period filter
+    if(activePeriod==='3m'){
+      const allM=sortMonths([...new Set(RAW_DATA.map(x=>x.mes).filter(Boolean))]);
+      const last3=allM.slice(-3);
+      if(!last3.includes(d.mes)) return false;
+    } else if(activePeriod==='ano26'){
+      if(!d.mes.endsWith('26')) return false;
+    }
+    // dropdown filters
+    if(filters.mes!=='Todos' && d.mes!==filters.mes) return false;
+    if(filters.estrategico!=='Todos' && getCategory(d)!==filters.estrategico) return false;
+    if(filters.unidade!=='Todas' && d.unidade!==filters.unidade) return false;
+    if(filters.cliente!=='Todos' && d.cliente!==filters.cliente) return false;
+    return true;
+  });
+}
+
+// ── RENDER FUNCTIONS ──
+
+function renderHero(data){
+  const s=calcNPS(data);
+  const z=npsZone(s.nps);
+  const col=npsColor(s.nps);
+
+  document.getElementById('heroScore').textContent = data.length?s.nps:'—';
+  document.getElementById('gaugeScore').textContent = data.length?s.nps:'—';
+
+  const zoneEl=document.getElementById('heroZone');
+  zoneEl.textContent=z.label;
+  zoneEl.className='score-hero-zone '+z.cls;
+  zoneEl.style.color=col;
+  zoneEl.style.borderColor=col+'55';
+
+  // needle: -90°=NPS -100, +90°=NPS 100
+  const angle = data.length ? (s.nps/100)*90 : -90;
+  document.getElementById('gaugeNeedle').style.transform=`rotate(${angle}deg)`;
+
+  document.getElementById('heroScore').style.color=col;
+
+  // kpis
+  document.getElementById('kpiP').textContent = data.length?s.p:'—';
+  document.getElementById('kpiN').textContent = data.length?s.n:'—';
+  document.getElementById('kpiD').textContent = data.length?s.det:'—';
+  const pp=data.length?((s.p/s.total)*100).toFixed(1):0;
+  const np=data.length?((s.n/s.total)*100).toFixed(1):0;
+  const dp=data.length?((s.det/s.total)*100).toFixed(1):0;
+  document.getElementById('kpiPBadge').textContent = data.length?`${pp}% do total`:'';
+  document.getElementById('kpiNBadge').textContent = data.length?`${np}% do total`:'';
+  document.getElementById('kpiDBadge').textContent = data.length?`${dp}% do total`:'';
+
+  // distribution
+  document.getElementById('dSegP').style.width=pp+'%';
+  document.getElementById('dSegN').style.width=np+'%';
+  document.getElementById('dSegD').style.width=dp+'%';
+  document.getElementById('dValP').textContent=data.length?s.p:'—';
+  document.getElementById('dValN').textContent=data.length?s.n:'—';
+  document.getElementById('dValD').textContent=data.length?s.det:'—';
+  document.getElementById('dPctP').textContent=data.length?pp+'%':'—';
+  document.getElementById('dPctN').textContent=data.length?np+'%':'—';
+  document.getElementById('dPctD').textContent=data.length?dp+'%':'—';
+  document.getElementById('dTotal').textContent=data.length?s.total:'—';
+
+  document.getElementById('heroDelta').innerHTML = data.length
+    ? `<strong>${s.total}</strong> avaliações no período`
+    : 'Sem dados';
+}
+
+function renderDimension(data, dim, containerId){
+  const keys=[...new Set(data.map(d=>d[dim]).filter(Boolean))];
+  const items=keys.map(k=>({name:k,...calcNPS(data.filter(d=>d[dim]===k))}))
+                  .filter(x=>x.total>0)
+                  .sort((a,b)=>b.nps-a.nps);
+  const wrap=document.getElementById(containerId);
+  if(!items.length){wrap.innerHTML='<p style="font-size:11px;opacity:.3;padding:10px 0;">Sem dados no período.</p>';return;}
+  const max=Math.max(...items.map(i=>i.nps+100),1);
+  wrap.innerHTML=items.map(it=>{
+    const col=npsColor(it.nps);
+    const barW=Math.max(4,((it.nps+100)/200)*100);
+    return `<div class="dim-item">
+      <div class="dim-row">
+        <span class="dim-name">${it.name}</span>
+        <span class="dim-score" style="color:${col}">${it.nps}</span>
+      </div>
+      <div class="dim-bar-bg"><div class="dim-bar-fill" style="width:${barW}%;background:${col}"></div></div>
+      <div class="dim-meta">▲ ${it.p} prom. &nbsp;◆ ${it.n} neut. &nbsp;▼ ${it.det} detr. &nbsp;Σ ${it.total}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderTrend(data){
+  const allM=sortMonths([...new Set(data.map(d=>d.mes).filter(Boolean))]);
+  if(allM.length<2){document.getElementById('trendSvg').innerHTML='<text x="280" y="90" fill="rgba(255,255,255,.2)" font-size="12" text-anchor="middle" font-family="Ubuntu">Dados insuficientes para tendência</text>';return;}
+  const points=allM.map(m=>({mes:m,...calcNPS(data.filter(d=>d.mes===m))}));
+  const W=560, H=160, padL=40, padR=20, padT=20, padB=30;
+  const chartW=W-padL-padR, chartH=H-padT-padB;
+  const xs=points.map((_,i)=>padL+(i/(points.length-1))*chartW);
+  const ys=points.map(p=>padT+((100-p.nps)/200)*chartH);
+
+  const pathD=points.map((p,i)=>`${i===0?'M':'L'}${xs[i]},${ys[i]}`).join(' ');
+  const areaD=pathD+` L${xs[xs.length-1]},${H-padB} L${padL},${H-padB} Z`;
+
+  const gridLines=[0,25,50,75,100].map(v=>{
+    const y=padT+((100-v)/200)*chartH;
+    return `<line x1="${padL}" y1="${y}" x2="${W-padR}" y2="${y}" stroke="rgba(255,255,255,.05)" stroke-width="1"/>
+            <text x="${padL-6}" y="${y+4}" fill="rgba(255,255,255,.2)" font-size="9" font-family="Ubuntu" text-anchor="end">${v}</text>`;
+  }).join('');
+
+  const dots=points.map((p,i)=>{
+    const col=npsColor(p.nps);
+    const isLast=i===points.length-1;
+    return `<circle cx="${xs[i]}" cy="${ys[i]}" r="${isLast?5:3.5}" fill="${isLast?col:'#010816'}" stroke="${col}" stroke-width="${isLast?0:2}"/>
+            ${isLast?`<rect x="${xs[i]-20}" y="${ys[i]-26}" width="40" height="20" rx="6" fill="${col}"/>
+            <text x="${xs[i]}" y="${ys[i]-12}" fill="#fff" font-size="10" font-family="Ubuntu" font-weight="700" text-anchor="middle">NPS ${p.nps}</text>
+            <polygon points="${xs[i]-4},${ys[i]-6} ${xs[i]+4},${ys[i]-6} ${xs[i]},${ys[i]-2}" fill="${col}"/>`:''}`;
+  }).join('');
+
+  const labels=points.map((p,i)=>{
+    if(points.length>8 && i%2!==0 && i!==points.length-1) return '';
+    return `<text x="${xs[i]}" y="${H-padB+16}" fill="rgba(255,255,255,.25)" font-size="9" font-family="Ubuntu" text-anchor="middle">${p.mes}</text>`;
+  }).join('');
+
+  document.getElementById('trendSvg').innerHTML=`
+    <defs><linearGradient id="tg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0%" stop-color="#ED1C24" stop-opacity=".2"/>
+      <stop offset="100%" stop-color="#ED1C24" stop-opacity="0"/>
+    </linearGradient></defs>
+    ${gridLines}
+    <path d="${areaD}" fill="url(#tg)"/>
+    <path d="${pathD}" fill="none" stroke="#ED1C24" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>
+    ${dots}${labels}`;
+}
+
+function renderStrategic(data){
+  const groups={ArcelorMittal:[],Vale:[],Petroreconcavo:[],Wind:[],Outros:[],Geral:[...data]};
+  data.forEach(d=>{ const c=getCategory(d); if(groups[c]) groups[c].push(d); else groups['Outros'].push(d); });
+  const order=['ArcelorMittal','Vale','Petroreconcavo','Wind','Outros','Geral'];
+  const items=order.map(k=>({name:k,...calcNPS(groups[k])}));
+  document.getElementById('strategicBoard').innerHTML=items.map(it=>{
+    const col=it.total?npsColor(it.nps):'rgba(255,255,255,.15)';
+    const z=npsZone(it.nps);
+    return `<div class="strat-card">
+      <div class="strat-top-bar" style="background:${col}"></div>
+      <div class="strat-name">${it.name}</div>
+      <div class="strat-score" style="color:${col}">${it.total?it.nps:'—'}</div>
+      ${it.total?`<span class="strat-zone ${z.cls}" style="font-size:7px">${z.label}</span>`:'<span style="font-size:9px;opacity:.2">Sem dados</span>'}
+      <div class="strat-bottom">
+        ${it.total?`<span>▲ ${it.p}</span><span>◆ ${it.n}</span><span>▼ ${it.det}</span><span style="opacity:.3">Σ ${it.total}</span>`:''}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderMonthly(data){
+  const allM=sortMonths([...new Set(data.map(d=>d.mes).filter(Boolean))]);
+  const points=allM.map(m=>({mes:m,...calcNPS(data.filter(d=>d.mes===m))}));
+  const maxNps=Math.max(...points.map(p=>Math.abs(p.nps)),1);
+  document.getElementById('monthlyHist').innerHTML=points.reverse().map(p=>{
+    const col=npsColor(p.nps);
+    const barW=Math.max(5,((p.nps+100)/200)*100);
+    return `<div class="month-bar-item">
+      <div class="month-label">${p.mes}</div>
+      <div class="month-bar-bg">
+        <div class="month-bar-fill" style="width:${barW}%;background:${col}50;">
+          <span style="color:${col}">${p.total} resp.</span>
+        </div>
+      </div>
+      <div class="month-nps" style="color:${col}">${p.nps}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderFeedbacks(data){
+  const withFeedback=data.filter(d=>d.feedback).reverse().slice(0,6);
+  document.getElementById('feedbacksList').innerHTML=withFeedback.map(d=>{
+    const type=d.nota>=9?'p':d.nota>=7?'n':'d';
+    const badgeBg=type==='p'?'rgba(0,166,80,.15)':type==='n'?'rgba(253,185,19,.15)':'rgba(239,65,54,.15)';
+    const badgeColor=type==='p'?'#00A650':type==='n'?'#FDB913':'#EF4136';
+    const tagCls=type==='p'?'zona-excelencia':type==='n'?'zona-aperfeicoamento':'zona-critica';
+    const tagLabel=type==='p'?'Promotor':type==='n'?'Neutro':'Detrator';
+    return `<div class="feedback-item">
+      <div class="feedback-score" style="background:${badgeBg};color:${badgeColor}">${d.nota}</div>
+      <div class="feedback-text">"${d.feedback}"</div>
+      <div class="feedback-meta">
+        <span>${d.cliente||'—'}</span>
+        <span>${d.unidade||'—'}</span>
+        <span>${d.mes}</span>
+        <span class="feedback-tag ${tagCls}">${tagLabel}</span>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+// ── MAIN RENDER ──
+function render(){
+  const data=getFilteredData();
+  renderHero(data);
+  renderDimension(data,'unidade','dimUnidade');
+  renderDimension(data,'cliente','dimCliente');
+  renderTrend(data);
+  renderStrategic(data);
+  renderMonthly(data);
+  renderFeedbacks(data);
+}
+
+// ── PERIOD SWITCH ──
+window.setPeriod = function(p, btn){
+  activePeriod=p;
+  document.querySelectorAll('.period-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  // reset mes filter
+  document.getElementById('f-mes').value='Todos';
+  filters.mes='Todos';
+  render();
+};
+
+// ── FILTER APPLY ──
+window.applyFilters = function(){
+  filters.mes = document.getElementById('f-mes').value;
+  filters.estrategico = document.getElementById('f-estrategico').value;
+  filters.unidade = document.getElementById('f-unidade').value;
+  filters.cliente = document.getElementById('f-cliente').value;
+  render();
+};
+
+// ── INIT ──
+populateFilters();
+render();
+// animate needle after paint
+setTimeout(()=>render(), 300);
+</script>
+</body>
+</html>
