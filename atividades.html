@@ -77,7 +77,15 @@ document.getElementById('userName').textContent='Admin';
 setActiveNav();
 
 /* ── INIT ── */
-loadKanban();
+(async function(){
+  var snap = await db.collection('colunas').get();
+  if (snap.empty) {
+    await db.collection('colunas').add({ nome: 'Fazer', ordem: 0 });
+    await db.collection('colunas').add({ nome: 'Fazendo', ordem: 1 });
+    await db.collection('colunas').add({ nome: 'Feito', ordem: 2 });
+  }
+  loadKanban();
+})();
 lucide.createIcons();
 </script>
 </body>
