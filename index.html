@@ -426,17 +426,9 @@ function enterApp() {
 }
 
 /* ── FIREBASE AUTH STATE ── */
-onAuthStateChanged(auth, async (user) => {
-  if (user) {
-    try {
-      const userInfo = await checkUserAccess(user.email);
-      currentUser = { uid: user.uid, email: user.email, ...userInfo };
-      enterApp();
-    } catch(e) {
-      await signOut(auth);
-    }
-  }
-});
+/* ── SEM LOGIN (temporário) ── */
+currentUser = { uid: 'local', email: 'local@admin', nome: 'Admin', tipo: 'admin' };
+enterApp();
 
 /* ── LOAD NPS DATA ── */
 async function loadNpsData() {
